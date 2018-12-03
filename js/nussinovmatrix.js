@@ -918,7 +918,7 @@ NussinovDPAlgorithm_Ambiguous2.Tables[0].computeCell = function(i, j) {
         return curCell;
     }
 
-    // check (i,j) base pair
+    // check (i,j) base pairh
     if ((j - i > this.minLoopLength) && RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[j - 1])) {
         // get value for base pair
         this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i + 1, j - 1]], [[i, j]]));

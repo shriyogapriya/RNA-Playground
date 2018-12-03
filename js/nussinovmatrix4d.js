@@ -651,6 +651,9 @@ var availableAlgorithms = {
 
     hybrid: DPAlgorithm_hybrid,
 
-    rnaup: DPAlgorithm_rnaup
+    rnaup: DPAlgorithm_rnaup,
+
+    /** pk_canonical */
+    pkCanonical: DPAlgorithm_pkcanonical
 
 };
