@@ -1,0 +1,70 @@
+
+
+ <div class="row" id="introduction">
+   <div class="colW600">
+     The algorithm by
+     <a href="https://doi.org/10.1093/nar/gkm258">Reeder&Giegerich</a>
+     briefly sketch the way to implement  an extension of the usual dynamic programming (DP) scheme for RNA folding [5,6].
+     <br />
+     <br />
+     Helical stem called 'Canonical stem' which comprises only canonical Watson-Crick base pairs and usually ends with two canonical C=G base pairs before the internal loop.
+     C(i,j) =  Maximal length of canonical stem with outermost base pairs (i,j)
+     <br/>
+     <br />
+     A canonical pseudoknot consists of two crossing canonical stems.
+     <br />
+     The (suboptimal) backtrace procedure the pseudoknot matrix is handled at the end.
+     <br />
+     <br />
+     Here, Since only two helices participate in one pseudoknot, we loop over all possible knots in one O(n4) loop and store the result in a two-dimensional matrix. 
+     Finally, the traceback is visualized. 
+   </div>
+   <div class="colW150">
+    <img alt="Canonical pseudoknot" src="output-onlinejpgtools.png" width=120 height=90 >
+  </div>
+ </div>
+
+ <div id="inputContainer">
+
+  <div class="row">
+      <div class="colW200" style="font-size: 120%; vertical-align: bottom; ">RNA sequence $S$:</div>
+      <div class="colW400">
+          <input id="rawSeq" data-bind="value: rawSeq" class="userInput"
+                 placeholder="Example 'GCACGACG'" onkeydown="validate(event)"
+                 style="text-transform:uppercase" />
+      </div>
+  </div>
+
+  <div class="row">
+      <div class="colW200" style="font-size: 120%">Minimal loop length $l$:</div>
+      <div class="colW400">
+          <select data-bind="value: loopLength" id="ll" style="width:40px;">
+              <option value=0>0</option>
+              <option value=1>1</option>
+              <option value=2>2</option>
+              <option value=3>3</option>
+              <option value=4>4</option>
+              <option value=5>5</option>
+          </select>
+          <label for="ll" style="margin-left:10px;">i.e. minimal number of enclosed positions</label>
+      </div>
+  </div>
+
+  <div class="row">
+      <div class="colW200" style="font-size: 120%">Delta #bp to maximum:</div>
+      <div class="colW400">
+          <select id="delta" data-bind="value: input.delta" style="width:40px;">
+              <option value=0>0</option>
+              <option value=1>1</option>
+              <option value=2>2</option>
+              <option value=3>3</option>
+              <option value=4>4</option>
+              <option value=5>5</option>
+          </select>
+          <label for="delta" style="margin-left:10px;">for suboptimal traceback</label>
+      </div>
+  </div>
+ <script src="js/visualize.js"></script>
+<!-- ensure structure list changes clear the forna rendering -->
+<script type="text/javascript">/* <![CDATA[ */$("#structures").bind("DOMSubtreeModified", fornaClear);/* ]]> */</script>
+ 
