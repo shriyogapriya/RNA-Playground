@@ -1,26 +1,43 @@
-
+<script>
+    function showRecursion() {
+        console.log("val:", $("#formula").val());
+        setTimeout(function () {      //introduces a little delay, so that the thing will close slowly and neatly
+            document.getElementById("recursion").innerHTML =  availableAlgorithms[$("#formula").val()].getRecursionInLatex();
+            rerendermath();
+            $(".animate1").empty();
+        }, 450);
+        rerendermath();
+    };
+</script>
 
  <div class="row" id="introduction">
    <div class="colW600">
-     The algorithm by
-     <a href="https://doi.org/10.1093/nar/gkm258">Reeder&Giegerich</a>
-     briefly sketch the way to implement  an extension of the usual dynamic programming (DP) scheme for RNA folding [5,6].
+    pknotsRG is an algorithm by 
+     <a href="https://doi.org/10.1093/nar/gkm258">Reeder&Giegerich.</a>
+      It is a tool for  folding RNA secondary structures, including the class of simple recursive pseudoknots. Here, we extend the
+     <a href="index.jsp?toolName=Nussinov">Nussinov</a> algorithm for
+     such a pseduknot prediction.
      <br />
      <br />
-     Helical stem called 'Canonical stem' which comprises only canonical Watson-Crick base pairs and usually ends with two canonical C=G base pairs before the internal loop.
-     C(i,j) =  Maximal length of canonical stem with outermost base pairs (i,j).
-     <br/>
-     <br />
+     Helical stem called 'Canonical stem' which comprises only canonical Watson-Crick base pairs. A cannonical stem with outermost base pair (i ; j) consists of the
+     base pairs (i + k; j - k), k >= 0 such that for all 0 <= k' <= k
+     (i + k'; j - k') is a valid Watson Crick base pair. 
      A canonical pseudoknot consists of two crossing canonical stems.
-     <br />
-     The (suboptimal) backtrace procedure the pseudoknot matrix is handled at the end.
-     <br />
+     <br/>
+     <div style="padding-left:45px;">
+        $C(i,j)=\max\begin{cases} C(i+1,j-1)+1 & \text{if}j-i>l \text{and} S_i,S_j \text{compl. base pair} \\ 0 & \text{otherwise} \end{cases}$,
+        <br />
+        <br />
+        $P(i,j) =\max\begin{cases} D(i,j-1) & S_j  \text{unpaired} \\max_{i < k< (j-l)} D(i,k-1)+D(k+1,j-1)+1 & \text{if} S_k,S_j \text{ compl. base pair} \\max_{i < k < l < j} C(i+1,j-1)+1 & \text{ encoded by c} \end{cases}$,
+     </div>
+     <br/>
      <br />
      Here, Since only two helices participate in one pseudoknot, we loop over all possible knots in one O(n4) loop and store the result in a two-dimensional matrix. 
      Finally, the traceback is visualized. 
    </div>
+
    <div class="colW150">
-    <img alt="Canonical pseudoknot" src="output-onlinejpgtools.png" width=120 height=90 >
+    <img alt="Canonical pseudoknot" src="pkcanonical.PNG" width=170 height=120 >
   </div>
  </div>
 
@@ -36,35 +53,79 @@
   </div>
 
   <div class="row">
-      <div class="colW200" style="font-size: 120%">Minimal loop length $l$:</div>
-      <div class="colW400">
-          <select data-bind="value: loopLength" id="ll" style="width:40px;">
-              <option value=0>0</option>
-              <option value=1>1</option>
-              <option value=2>2</option>
-              <option value=3>3</option>
-              <option value=4>4</option>
-              <option value=5>5</option>
-          </select>
-          <label for="ll" style="margin-left:10px;">i.e. minimal number of enclosed positions</label>
-      </div>
-  </div>
+    <div class="colW250" style="font-size: 120%">Minimal loop length $l$:</div>
+    <div class="colW400">
+        <select data-bind="value: loopLength" id="ll" style="width:40px;">
+            <option value=0>0</option>
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+        </select>
+        <label for="ll" style="margin-left:10px;">i.e. minimal number of enclosed positions</label>
+    </div>
 
-  <div class="row">
-      <div class="colW200" style="font-size: 120%">Delta #bp to maximum:</div>
-      <div class="colW400">
-          <select id="delta" data-bind="value: input.delta" style="width:40px;">
-              <option value=0>0</option>
-              <option value=1>1</option>
-              <option value=2>2</option>
-              <option value=3>3</option>
-              <option value=4>4</option>
-              <option value=5>5</option>
-          </select>
-          <label for="delta" style="margin-left:10px;">for suboptimal traceback</label>
+    <div class="row">
+        <div id="rec_select" style="display: none;">pkCanonical</div>
+    </div>
+
+</div>
+<div id="output">
+        <script type="text/javascript">
+            showRecursion();
+        </script>
+    <div class="scroll_table">
+        <table id="matrixC">
+          <thead>
+            <tr>
+              <th class="cell_count" style="font-size: 16px; color: darkslategray">$C$</th>
+              <th class="cell_count"></th>
+              <!-- ko foreach: { data: seqList, as: 'base' } -->
+              <th class="cell_count" data-bind="writeSeq: [base, $index()+1]"></th>
+              <!-- /ko -->
+            </tr>
+          </thead>
+    
+          <tbody id='matrix_data' data-bind="foreach: { data: cells()[0], as: 'cell' }">
+            <tr>
+              <th class="cell_count" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
+              <!-- ko foreach: { data: cell, as: 'v' } -->
+              <td class="cell_count" data-bind="text: v.i < v.j+2 ? v.value : '', style: { background: (v.i==1 && v.j==$root.seqList().length) ? 'lightblue' : '#f2f3f1' }, attr: {title: 'i=' + v.i + ' j=' + v.j}"></td>
+              <!-- <td class="cell_count"  data-bind="text: v.i < v.j+2 ? v.value : '', style: { background: (v.i==1 && v.j==$root.seqList().length) ? 'lightblue' : 'white' }"></td> -->
+    
+              <!-- /ko -->
+            </tr>
+          </tbody>
+    
+        </table>
       </div>
-  </div>
- <script src="js/visualize.js"></script>
-<!-- ensure structure list changes clear the forna rendering -->
-<script type="text/javascript">/* <![CDATA[ */$("#structures").bind("DOMSubtreeModified", fornaClear);/* ]]> */</script>
- 
+    
+    
+    
+    <div class="scroll_table">
+      <table id="matrixp">
+        <thead>
+          <tr>
+            <th class="cell_count" style="font-size: 16px; color: darkslategray">$P$</th>
+            <th class="cell_count"></th>
+            <!-- ko foreach: { data: seqList, as: 'base' } -->
+            <th class="cell_count" data-bind="writeSeq: [base, $index()+1]"></th>
+            <!-- /ko -->
+          </tr>
+        </thead>
+    
+        <tbody id='matrix_data' data-bind="foreach: { data: cells()[1], as: 'cell' }">
+          <tr>
+            <th class="cell_count" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
+            <!-- ko foreach: { data: cell, as: 'v' } -->
+            <td class="cell_count" data-bind="text: v.i < v.j+2 ? v.value : '', attr: {title: 'i=' + v.i + ' j=' + v.j} "></td>
+            <!-- /ko -->
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div><a href="javascript:generate_tables()">Download Tables</a></div>
+    
+</div>
+<script src="js/visualize.js"></script>

@@ -1577,6 +1577,92 @@ NussinovDPAlgorithm_McCaskill.computeMatrix = function (input) {
 };
 
 
+
+var DPAlgorithm_pkcanonical = Object.create(DPAlgorithm);
+
+DPAlgorithm_pkcanonical.Description = "Pseudoknot Prediction";
+DPAlgorithm_pkcanonical.Tables = new Array();
+DPAlgorithm_pkcanonical.Tables.push(Object.create(NussinovMatrix));
+DPAlgorithm_pkcanonical.Tables.push(Object.create(NussinovMatrix));
+DPAlgorithm_pkcanonical.Tables[0].latex_representation = "C(i,j) = \\max \\begin{cases} C(i+1,j-1)+1 & \\text{if }j-i>l \\text{ and } S_i,S_j \\text{ compl. base pair} \\\\ 0 & \\text{else} \\end{cases}";
+DPAlgorithm_pkcanonical.Tables[1].latex_representation= "P(i,j) =  \\max \\begin{cases}" +" D(i,j-1) & S_j \\text{ unpaired} " +"\\\\\\max_{i\\leq k< (j-l)} D(i,k-1)+D(k+1,j-1)+1 & \\text{if } S_k,S_j \\text{ compl. base pair}" +"\\\\max_{i < k < l < j} C(i+1,j-1)+1"+" & \\text{ encoded by c}"+" \\end{cases}";
+
+DPAlgorithm_pkcanonical.Tables[0].computeCell = function(i, j) {
+
+    var curCell = Object.create(NussinovCell).init(i, j, 0);
+
+    if (this.isInvalidState(i, j)) {
+        return curCell;
+    }
+    // i, j complementary
+    if ((j - i > this.minLoopLength) && RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[j - 1])) {
+        // get value for base pair
+        this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i + 1, j - 1]], [[i, j]]));
+    }
+
+    // else
+    return curCell;
+};
+
+DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
+
+    var curCell = Object.create(NussinovCell).init(i, j, 0);
+
+    if (this.isInvalidState(i, j)) {
+        return curCell;
+    }
+    // j unpaired
+    this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i, j - 1]], []));
+
+    // check base pair based decomposition : (k,j) base pair
+    for (var k = i; k + this.minLoopLength < j; k++) {
+        // check if sequence positions are compatible
+        if (RnaUtil.areComplementary(this.sequence[k - 1], this.sequence[j - 1])) {
+            this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i, k - 1], [k + 1, j - 1]], [[k, j]]));
+        }
+    }
+
+    // i, j complementary
+    if ((j - i > this.minLoopLength) && RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[j - 1])) {
+        // get value for base pair
+        this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i + 1, j - 1]], [[i, j]]));
+    }
+
+    return curCell;
+
+};
+
+
+DPAlgorithm_pkcanonical.computeMatrix = function (input) {
+
+// resize and initialize matrix
+    this.Tables[0].init(input.sequence(), "C matrix");
+    this.Tables[1].init(input.sequence(), "p matrix");
+// store minimal loop length
+    this.Tables[0].minLoopLength = parseInt(input.loopLength());
+    this.Tables[1].minLoopLength = parseInt(input.loopLength());
+    this.Tables[0].computeAllCells();
+    this.Tables[1].computeAllCells();
+    return this.Tables;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var DPAlgorithm_MEA = Object.create(DPAlgorithm);
 
 DPAlgorithm_MEA.Description = "Maximum Expected Accuracy";
@@ -1817,6 +1903,12 @@ var wuchty = function (xmat) {
     }
     return SOS;
 }
+
+
+
+
+
+
 
 ///**
 // * global list of available Nussinov algorithm implementations
