@@ -10,7 +10,7 @@
     };
 </script>
 
- <div class="row" id="introduction">
+<div class="row" id="introduction">
    <div class="colW600">
     pknotsRG is an algorithm by 
      <a href="https://doi.org/10.1093/nar/gkm258">Reeder&Giegerich.</a>
@@ -24,11 +24,19 @@
      (i + k'; j - k') is a valid Watson Crick base pair. 
      A canonical pseudoknot consists of two crossing canonical stems.
      <br/>
+     <br />
+     The following are the recursions used for pseduknot prediction.
      <div style="padding-left:45px;">
-        $C(i,j)=\max\begin{cases} C(i+1,j-1)+1 & \text{if}j-i>l \text{and} S_i,S_j \text{compl. base pair} \\ 0 & \text{otherwise} \end{cases}$,
+        $C(i,j)=\max\begin{cases} D(i+1,j-1)+1 & \text{if} j-i > l \text{and} S_i, S_j \text{compl. base pair} \\ 0 & \text{otherwise} \end{cases}$,
+        <br /> 
+        <br />
+        which is used to find the maximal length of canonical stem with outermost bp(i,j)
         <br />
         <br />
-        $P(i,j) =\max\begin{cases} D(i,j-1) & S_j  \text{unpaired} \\max_{i < k< (j-l)} D(i,k-1)+D(k+1,j-1)+1 & \text{if} S_k,S_j \text{ compl. base pair} \\max_{i < k < l < j} C(i+1,j-1)+1 & \text{ encoded by c} \end{cases}$,
+        $P(i,j) =\max\begin{cases} D(i,j-1) & S_j  \text{unpaired} \\max_{i < k< (j-l)} D(i,k-1)+D(k+1,j-1)+1 & \text{if} S_k,S_j \text{ compl. base pair} \\max_{i < k < l < j} D(i+1,j-1)+1 & \text{ encoded by c} \end{cases}$,
+        <br /> 
+        <br />
+        which is used to find the maximum number of bps in range k...l
      </div>
      <br/>
      <br />
@@ -39,38 +47,63 @@
    <div class="colW150">
     <img alt="Canonical pseudoknot" src="pkcanonical.PNG" width=170 height=120 >
   </div>
- </div>
+</div>
 
- <div id="inputContainer">
+<div id="inputContainer">
 
-  <div class="row">
-      <div class="colW200" style="font-size: 120%; vertical-align: bottom; ">RNA sequence $S$:</div>
-      <div class="colW400">
-          <input id="rawSeq" data-bind="value: rawSeq" class="userInput"
-                 placeholder="Example 'GCACGACG'" onkeydown="validate(event)"
-                 style="text-transform:uppercase" />
-      </div>
-  </div>
+    <div class="row">
+            <div class="colW250" style="font-size: 120%; vertical-align: bottom; ">RNA sequence:</div>
+            <div class="colW400">
+                <input id="rawSeq" data-bind="value: rawSeq" class="userInput"
+                       placeholder="Example 'GCACGACG'" onkeydown="validate(event)"
+                       style="text-transform:uppercase">
+            </div>
+    </div>
 
-  <div class="row">
-    <div class="colW250" style="font-size: 120%">Minimal loop length $l$:</div>
-    <div class="colW400">
-        <select data-bind="value: loopLength" id="ll" style="width:40px;">
-            <option value=0>0</option>
-            <option value=1>1</option>
-            <option value=2>2</option>
-            <option value=3>3</option>
-            <option value=4>4</option>
-            <option value=5>5</option>
-        </select>
-        <label for="ll" style="margin-left:10px;">i.e. minimal number of enclosed positions</label>
+    <div class="row">
+            <div class="colW250" style="font-size: 120%">Minimal loop length $l$:</div>
+            <div class="colW400">
+                <select data-bind="value: loopLength" id="ll" style="width:40px;">
+                    <option value=0>0</option>
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                </select>
+                <label for="ll" style="margin-left:10px;">i.e. minimal number of enclosed positions</label>
+            </div>
+    </div>
+
+    <div class="row">
+            <div class="colW250" style="font-size: 120%">Energy weight of base pair $E_{bp}$:</div>
+            <div class="colW400">
+                <input data-bind="value: input.energy" id="energy" type="range" max="2" min="-2" step="(max - min) / 100">
+                <label for="energy" data-bind="text: input.energy"></label>
+            </div>
+    </div>
+
+    <div class="row">
+        <div class="colW250" style="font-size: 120%">Delta:</div>
+            <div class="colW400">
+                <select id="delta" data-bind="value: input.delta" style="width:40px;">
+                    <option value=0>0</option>
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                </select>
+                <label for="delta" style="margin-left:10px;">for suboptimal traceback</label>
+            </div>
     </div>
 
     <div class="row">
         <div id="rec_select" style="display: none;">pkCanonical</div>
     </div>
-
 </div>
+
+
 <div id="output">
         <script type="text/javascript">
             showRecursion();
@@ -87,17 +120,14 @@
             </tr>
           </thead>
     
-          <tbody id='matrix_data' data-bind="foreach: { data: cells()[0], as: 'cell' }">
-            <tr>
-              <th class="cell_count" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
-              <!-- ko foreach: { data: cell, as: 'v' } -->
-              <td class="cell_count" data-bind="text: v.i < v.j+2 ? v.value : '', style: { background: (v.i==1 && v.j==$root.seqList().length) ? 'lightblue' : '#f2f3f1' }, attr: {title: 'i=' + v.i + ' j=' + v.j}"></td>
-              <!-- <td class="cell_count"  data-bind="text: v.i < v.j+2 ? v.value : '', style: { background: (v.i==1 && v.j==$root.seqList().length) ? 'lightblue' : 'white' }"></td> -->
-    
-              <!-- /ko -->
-            </tr>
-          </tbody>
-    
+          <tbody id="matrix_body" data-bind="foreach: { data: cells()[0], as: 'cell' }">
+                <tr>
+                    <th class="cell_mea_th" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
+                    <!-- ko foreach: { data: cell, as: 'v' } -->
+                    <td class="cell_mea" data-bind="text: v.i < v.j+2 ? v.value : '', event: { mousedown: $root.clickCell.bind(this) }, attr: {title: 'i=' + v.i + ' j=' + v.j}"></td>
+                    <!-- /ko -->
+                </tr>
+            </tbody>
         </table>
       </div>
     
@@ -105,27 +135,42 @@
     
     <div class="scroll_table">
       <table id="matrixp">
-        <thead>
-          <tr>
-            <th class="cell_count" style="font-size: 16px; color: darkslategray">$P$</th>
-            <th class="cell_count"></th>
+            <thead>
+            <tr>
+                <th class="cell_count" style="font-size: 16px; color: darkslategray">$P$</th>
+                <th class="cell_count"></th>
             <!-- ko foreach: { data: seqList, as: 'base' } -->
-            <th class="cell_count" data-bind="writeSeq: [base, $index()+1]"></th>
+                <th class="cell_count" data-bind="writeSeq: [base, $index()+1]"></th>
             <!-- /ko -->
-          </tr>
-        </thead>
+            </tr>
+            </thead>
     
-        <tbody id='matrix_data' data-bind="foreach: { data: cells()[1], as: 'cell' }">
-          <tr>
-            <th class="cell_count" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
-            <!-- ko foreach: { data: cell, as: 'v' } -->
-            <td class="cell_count" data-bind="text: v.i < v.j+2 ? v.value : '', attr: {title: 'i=' + v.i + ' j=' + v.j} "></td>
-            <!-- /ko -->
-          </tr>
-        </tbody>
+            <tbody id="matrix_body" data-bind="foreach: { data: cells()[0], as: 'cell' }">
+                <tr>
+                    <th class="cell_mea_th" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
+                    <!-- ko foreach: { data: cell, as: 'v' } -->
+                    <td class="cell_mea" data-bind="text: v.i < v.j+2 ? v.value : '', event: { mousedown: $root.clickCell.bind(this) }, attr: {title: 'i=' + v.i + ' j=' + v.j}"></td>
+                    <!-- /ko -->
+                </tr>
+            </tbody>
       </table>
     </div>
     <div><a href="javascript:generate_tables()">Download Tables</a></div>
-    
+    <div class="col_structures">
+            <table id="structures" style="margin:0;">
+                <thead>
+                <tr>
+                    <th id="structTableHeading">Possible Structures</th>
+                </tr>
+                </thead>
+
+                <tbody data-bind="foreach: { data: tracebacks, as: 'tb' }">
+                <tr><td id="structTableCells" data-bind="text: tb.structure, event: {mousedown:$parent.clickStructure}"
+                    onclick="fornaRendering( document.getElementById('rawSeq').value, this)"></td></tr>
+                </tbody>
+            </table>
+        </div>
 </div>
 <script src="js/visualize.js"></script>
+<!-- ensure structure list changes clear the forna rendering -->
+<script type="text/javascript">/* <![CDATA[ */$("#structures").bind("DOMSubtreeModified", fornaClear);/* ]]> */</script>
