@@ -133,6 +133,14 @@ function NussinovMatrixViewModel() {
         }
     });
 
+    self.pkCanonicalRecursion = ko.computed(function () {
+        //console.log($(rec_select).text());
+        if ($(rec_select).text() === "pkCanonical") {
+            console.log("pkCanonical");
+            self.input.recursion("pkCanonical");
+        }
+    });
+
 
     self.seqList = ko.computed(function () {
         return self.input.sequence().toUpperCase().split("");

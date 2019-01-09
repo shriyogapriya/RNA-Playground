@@ -1,14 +1,3 @@
-<script>
-    function showRecursion() {
-        console.log("val:", $("#formula").val());
-        setTimeout(function () {      //introduces a little delay, so that the thing will close slowly and neatly
-            document.getElementById("recursion").innerHTML =  availableAlgorithms[$("#formula").val()].getRecursionInLatex();
-            rerendermath();
-            $(".animate1").empty();
-        }, 450);
-        rerendermath();
-    };
-</script>
 
 <div class="row" id="introduction">
    <div class="colW600">
@@ -27,16 +16,13 @@
      <br />
      The following are the recursions used for pseduknot prediction.
      <div style="padding-left:45px;">
-        $C(i,j)=\max\begin{cases} D(i+1,j-1)+1 & \text{if} j-i > l \text{and} S_i, S_j \text{compl. base pair} \\ 0 & \text{otherwise} \end{cases}$,
+        <span id="rec_id_0" data-bind="text: latex()[0]"></span>
+        <br />
+        which is used to find the maximal length of canonical stem with outermost base pair $(i,j)$
+        <br />
+        <span id="rec_id_1" data-bind="text: latex()[1]"></span>
         <br /> 
-        <br />
-        which is used to find the maximal length of canonical stem with outermost bp(i,j)
-        <br />
-        <br />
-        $P(i,j) =\max\begin{cases} D(i,j-1) & S_j  \text{unpaired} \\max_{i < k< (j-l)} D(i,k-1)+D(k+1,j-1)+1 & \text{if} S_k,S_j \text{ compl. base pair} \\max_{i < k < l < j} D(i+1,j-1)+1 & \text{ encoded by c} \end{cases}$,
-        <br /> 
-        <br />
-        which is used to find the maximum number of bps in range k...l
+        which is used to find the maximum number of bps for varying $k$ and $l$
      </div>
      <br/>
      <br />
@@ -105,31 +91,41 @@
 
 
 <div id="output">
-        <script type="text/javascript">
-            showRecursion();
-        </script>
-    <div class="scroll_table">
-        <table id="matrixC">
-          <thead>
-            <tr>
-              <th class="cell_count" style="font-size: 16px; color: darkslategray">$C$</th>
-              <th class="cell_count"></th>
-              <!-- ko foreach: { data: seqList, as: 'base' } -->
-              <th class="cell_count" data-bind="writeSeq: [base, $index()+1]"></th>
-              <!-- /ko -->
-            </tr>
-          </thead>
-    
-          <tbody id="matrix_body" data-bind="foreach: { data: cells()[0], as: 'cell' }">
-                <tr>
-                    <th class="cell_mea_th" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
-                    <!-- ko foreach: { data: cell, as: 'v' } -->
-                    <td class="cell_mea" data-bind="text: v.i < v.j+2 ? v.value : '', event: { mousedown: $root.clickCell.bind(this) }, attr: {title: 'i=' + v.i + ' j=' + v.j}"></td>
-                    <!-- /ko -->
-                </tr>
-            </tbody>
-        </table>
-      </div>
+    <div class="row" style="margin:0;">
+	        <div class="col_table">
+	            <canvas id="CanvasLayer" style="z-index: 0; border: 0px solid; position: absolute; width: 0px; height: 0px"></canvas>
+	            <table style="margin:0;">
+	                <thead>
+	                <tr>
+	                    <th class="cell_th">$C$</th>
+	                    <th class="cell_th"></th>
+	                    <!-- ko foreach: { data: seqList, as: 'base' } -->
+	                    <th class="cell_mea_th" data-bind="writeSeq: [base, $index()+1]"></th>
+	                    <!-- /ko -->
+	                </tr>
+	                </thead>
+
+	                <tbody id="matrix_body" data-bind="foreach: { data: cells()[0], as: 'cell' }">
+	                <tr>
+	                    <th class="cell_th" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
+	                    <!-- ko foreach: { data: cell, as: 'v' } -->
+	                    <td class="cell_mea" data-bind="text: v.i < v.j+2 ? v.value : '', event: { mousedown: $root.clickCell.bind(this) }, attr: {title: 'i=' + v.i + ' j=' + v.j}"></td>
+	                    <!-- /ko -->
+	                </tr>
+
+	                </tbody>
+	            </table>
+	            <br />
+	  	        <a href="javascript:generate_tables()">Download Tables</a>
+	            <table style="display:none;margin:0;">
+	            <tr>
+	                <td id="info"
+	                    style="display: none; border: 1px solid grey; padding: 6px 14px;letter-spacing: 2px; background: #fff;"></td>
+	            </tr>
+	            </table>
+            </div>
+
+	    </div>
     
     
     
