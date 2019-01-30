@@ -138,6 +138,10 @@ function NussinovMatrixViewModel() {
         if ($(rec_select).text() === "pkCanonical") {
             console.log("pkCanonical");
             self.input.recursion("pkCanonical");
+            self.input.allowTraceback = true;
+            //self.input.allowTraceback = false;
+            //cellWidth = 48;
+            //cellHeight = 28;
         }
     });
 

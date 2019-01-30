@@ -143,6 +143,7 @@ var NussinovMatrix = {
      */
     minLoopLength: 0,
 
+
     /**
      * cells of the matrix
      */
@@ -1585,7 +1586,7 @@ DPAlgorithm_pkcanonical.Tables = new Array();
 DPAlgorithm_pkcanonical.Tables.push(Object.create(NussinovMatrix));
 DPAlgorithm_pkcanonical.Tables.push(Object.create(NussinovMatrix));
 DPAlgorithm_pkcanonical.Tables[0].latex_representation = "C(i,j) = \\max \\begin{cases} C(i+1,j-1)+1 & \\text{if }j-i>l \\text{ and } S_i,S_j \\text{ compl. base pair} \\\\ 0 & \\text{else} \\end{cases}";
-DPAlgorithm_pkcanonical.Tables[1].latex_representation= "P(i,j) = \\max \\begin{cases} D(i,j-1) & S_j \\text{ unpaired} \\\\ \\max_{i\\leq k< (j-l)} D(i,k-1)+D(k+1,j-1)+1 & \\text{if } S_k,S_j \\text{ compl. base pair}\\\\ \\max_{i < k < l < j ,\\\\  1 \\le d1 \\le C(i,l) ,\\\\  1 \\le d2 \\le C(k,l), \\\\  (d1+d2) \\le (l-k+1) }d1 + P(i+d1,k-1) + d2 + P(k+d2,l-d1) + P(l+1,j-d2) \\end{cases}";
+DPAlgorithm_pkcanonical.Tables[1].latex_representation= "P(i,j) = \\max \\begin{cases} P(i,j-1) & S_j \\text{ unpaired} \\\\ \\max_{i\\leq k< (j-l)} P(i,k-1)+P(k+1,j-1)+1 & \\text{if } S_k,S_j \\text{ compl. base pair}\\\\ \\max_{i < k < l < j ,\\\\  1 \\le d1 \\le C(i,l) ,\\\\  1 \\le d2 \\le C(k,l), \\\\  (d1+d2) \\le (l-k+1) }  d1 + P(i+d1,k-1) + d2 \\ + P(k+d2,l-d1) + P(l+1,j-d2)  \\end{cases}";
 
 
 DPAlgorithm_pkcanonical.Tables[0].computeCell = function(i, j) {
@@ -1613,7 +1614,7 @@ DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
         return curCell;
     }
     // j unpaired
-    this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i, j - 1]], []));
+    this.updateCell(curCell, this.getValue(i,j-1),Object.create(NussinovCellTrace).init([[i, j - 1]], []));
 
     // check base pair based decomposition : (k,j) base pair
     for (var k = i; k + this.minLoopLength < j; k++) {
@@ -1623,12 +1624,34 @@ DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
         }
     }
 
+// d1 = min ((k-i), C(i,l))
+// d2 = min (c(k,j),(j-i),(l-k-d1+1)
+//max i<k<l<j
+
     // canonical pseudoknot case
-    for(var k =i; k+this.minLoopLength<j; k++){
-        for(var l=k+this.minLoopLength+1; l<=j; l++) {
-            if (RnaUtil.areComplementary(this.sequence[k - 1], this.sequence[l - 1])) {
-        
-             this.updateCell(curCell,this.getValue(i+d1,k-1)+this.getValue(k+d2,l-d1)+this.getValue(l+1,j-d2), Object.create(NussinovCellTrace).init([[i + d1, k - 1], [k + d2, l - d1], [l + 1 , j - d2]] ));
+     for (var k = i; k < j; k++) {
+        for(var l = k; l < j ; l++) {
+            var d1 = ((k-i), RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[l- 1]))   
+            if(0<d1) {
+                var d1lim = RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[l- 1]);
+                for(;d1<d1lim; d1++) {
+                    var a = ((j-i),(l-k-d1+1))
+                    var b = RnaUtil.areComplementary(this.sequence[k - 1], this.sequence[j- 1]);
+                    var d2 = (a,b);
+                    if(0<d2){
+                        var d2lim = RnaUtil.areComplementary(this.sequence[k - 1], this.sequence[j- 1]);
+                        for(; d2<d2lim; d2++) {
+                            for(var d1d2 =d1+d2; d1d2<=(l-k+1); d1d2++) {
+                                if (RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[l- 1] && this.sequence[k - 1], this.sequence[j- 1] )) {
+                                {
+                                    this.updateCell(curCell,this.getValue(i+d1,k-1)+this.getValue(k+d2,l-d1)+this.getValue(l+1,j-d2), Object.create(NussinovCellTrace).init([[i + d1, k - 1], [k + d2, l - d1], [l + 1 , j - d2]] ));
+                                        
+                                          
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -1825,40 +1848,56 @@ DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces,
     }
 
     // canonical pseudoknot case recursion
-    for(var k =i; k+this.minLoopLength<j; k++){
-        for(var l=k+this.minLoopLength+1; l<=j; l++) {
-            if (RnaUtil.areComplementary(this.sequence[k - 1], this.sequence[l - 1])) {
-                var sigma_prime = JSON.stringify(sigma);
-                sigma_prime = JSON.parse(sigma_prime);
-                // sigma_prime.push([ij[0], l - 1]);
-                // sigma_prime.push([l + 1, ij[1] - 1]);
+    for (var k = i; k < j; k++) {
+        for(var l = k; l < j ; l++) {
+            var d1 = p((k-i), RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[l- 1]))   
+            if(0<d1) {
+                var d1lim = RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[l- 1]);
+                for(;d1<d1lim; d1++) {
+                    var yo = p((j-i),(l-k-d1+1))
+                    var pr = RnaUtil.areComplementary(this.sequence[k - 1], this.sequence[j- 1]);
+                    var d2 = p(pr,yo);
+                    if(0<d2){
+                        var d2lim = RnaUtil.areComplementary(this.sequence[k - 1], this.sequence[j- 1]);
+                        for(; d2<d2lim; d2++) {
+                            for(var d1d2 =d1+d2; d1d2<=(l-k+1); d1d2++) {
+                                if (RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[l- 1] && this.sequence[k - 1], this.sequence[j- 1] )) {
+                                {
+                                    var sigma_prime = JSON.stringify(sigma);
+                                    sigma_prime = JSON.parse(sigma_prime);
+                                    //sigma_prime.push();
+                                    var tmp_P = JSON.stringify(P);
+                                    tmp_P = JSON.parse(tmp_P);
+                                    //tmp_P.push();
+                                    var tmp_traces = JSON.stringify(traces);
+                                    tmp_traces = JSON.parse(tmp_traces);
 
-                var tmp_P = JSON.stringify(P);
-                tmp_P = JSON.parse(tmp_P);
-                // tmp_P.push([l, ij[1]]);
+                                    var NSprime = this.countBasepairs(tmp_P, sigma_prime);
 
-                var tmp_traces = JSON.stringify(traces);
-                tmp_traces = JSON.parse(tmp_traces);
+                                    if (NSprime >= Nmax - delta) {
 
-                var NSprime = this.countBasepairs(tmp_P, sigma_prime);
-                if (NSprime >= Nmax - delta) {
+                                        var S_prime = {};
+                                        S_prime.sigma = sigma_prime;
+                                        S_prime.P = tmp_P;
+                                        //tmp_traces.unshift([ij, [[ij[0], l - 1], [l + 1, ij[1] - 1]]]);
+                                        S_prime.traces = tmp_traces;
+                                        //console.log("ilj:", JSON.stringify(S_prime));
+                                        // push to the back to keep base pair most prominent to refine
+                                         R.push(S_prime);
+                                    }
 
-                    var S_prime = {};
-                    S_prime.sigma = sigma_prime;
-                    S_prime.P = tmp_P;
-                    // tmp_traces.unshift([ij, [[ij[0], l - 1], [l + 1, ij[1] - 1]]]);
-                    S_prime.traces = tmp_traces;
-                    //console.log("ilj:", JSON.stringify(S_prime));
-                    // push to the back to keep base pair most prominent to refine
-                    R.push(S_prime);
+                                        // check if enough structures found so far
+                                    if (R.length >= maxLengthR) {
+                                        //console.log("returning R:", JSON.stringify(R));
+                                        return R;
+                                    }
+                                        
+                                          
+                                }
+                            }
+                        }
+                    }
                 }
-
-                // check if enough structures found so far
-                if (R.length >= maxLengthR) {
-                    //console.log("returning R:", JSON.stringify(R));
-                    return R;
-                }
-            
             }
         }
     }
