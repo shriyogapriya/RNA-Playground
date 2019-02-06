@@ -1627,11 +1627,11 @@ DPAlgorithm_pkcanonical.Description = "Pseudoknot Prediction";
 DPAlgorithm_pkcanonical.Tables = new Array();
 DPAlgorithm_pkcanonical.Tables.push(Object.create(NussinovMatrix));
 DPAlgorithm_pkcanonical.Tables.push(Object.create(NussinovMatrix));
-DPAlgorithm_pkcanonical.Tables[0].latex_representation = "C(i,j) = \\max \\begin{cases} C(i+1,j-1)+1 & \\text{if }j-i>l \\text{ and } S_i,S_j \\text{ compl. base pair} \\\\ 0 & \\text{else} \\end{cases}";
-DPAlgorithm_pkcanonical.Tables[1].latex_representation= "P(i,j) = \\max \\begin{cases} P(i,j-1) & S_j \\text{ unpaired} \\\\ \\max_{i\\leq k< (j-l)} P(i,k-1)+P(k+1,j-1)+1 & \\text{if } S_k,S_j \\text{ compl. base pair}\\\\ \\max_{i < k < l < j ,\\\\  1 \\le d1 \\le C(i,l) ,\\\\  1 \\le d2 \\le C(k,l), \\\\  (d1+d2) \\le (l-k+1) }  d1 + P(i+d1,k-1) + d2 \\ + P(k+d2,l-d1) + P(l+1,j-d2)  \\end{cases}";
+DPAlgorithm_pkcanonical.Tables[1].latex_representation = "C(i,j) = \\max \\begin{cases} C(i+1,j-1)+1 & \\text{if }j-i>l \\text{ and } S_i,S_j \\text{ compl. base pair} \\\\ 0 & \\text{else} \\end{cases}";
+DPAlgorithm_pkcanonical.Tables[0].latex_representation= "P(i,j) = \\max \\begin{cases} P(i,j-1) & S_j \\text{ unpaired} \\\\ \\max_{i\\leq k< (j-l)} P(i,k-1)+P(k+1,j-1)+1 & \\text{if } S_k,S_j \\text{ compl. base pair}\\\\ \\max_{i < k < l < j ,\\\\  1 \\le d1 \\le C(i,l) ,\\\\  1 \\le d2 \\le C(k,l), \\\\  (d1+d2) \\le (l-k+1) }  d1 + P(i+d1,k-1) + d2 \\ + P(k+d2,l-d1) + P(l+1,j-d2)  \\end{cases}";
 
 
-DPAlgorithm_pkcanonical.Tables[0].computeCell = function(i, j) {
+DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
 
     var curCell = Object.create(NussinovCell).init(i, j, 0);
 
@@ -1648,7 +1648,7 @@ DPAlgorithm_pkcanonical.Tables[0].computeCell = function(i, j) {
     return curCell;
 };
 
-DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
+DPAlgorithm_pkcanonical.Tables[0].computeCell = function(i, j) {
 
     var curCell = Object.create(NussinovCell).init(i, j, 0);
 
@@ -1678,8 +1678,8 @@ DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
             {
                 continue;
             }   
-            var d1 = Math.min ((k-i),(l-k),DPAlgorithm_pkcanonical.Tables[0].getValue(i,l));
-            var d2 = Math.min (DPAlgorithm_pkcanonical.Tables[0].getValue(k,j),(j-i),(l-k-d1+1));
+            var d1 = Math.min ((k-i),(l-k),DPAlgorithm_pkcanonical.Tables[1].getValue(i,l));
+            var d2 = Math.min (DPAlgorithm_pkcanonical.Tables[1].getValue(k,j),(j-i),(l-k-d1+1));
             // collect all PK base pairs
             var curBPs = [];
 			for(var x=0; x<d1; x++){
@@ -1699,7 +1699,7 @@ DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
     return curCell;
 };
 
-DPAlgorithm_pkcanonical.Tables[0].updateCell = function (curCell, curVal, curAncestor) {
+DPAlgorithm_pkcanonical.Tables[1].updateCell = function (curCell, curVal, curAncestor) {
 
     if (curCell === null || curCell.value <= curVal) {
         // check for new maximal value
@@ -1714,7 +1714,7 @@ DPAlgorithm_pkcanonical.Tables[0].updateCell = function (curCell, curVal, curAnc
     }
 }
 
-DPAlgorithm_pkcanonical.Tables[1].updateCell = function (curCell, curVal, curAncestor) {
+DPAlgorithm_pkcanonical.Tables[0].updateCell = function (curCell, curVal, curAncestor) {
 
     if (curCell === null || curCell.value <= curVal) {
         // check for new maximal value
@@ -1733,24 +1733,24 @@ DPAlgorithm_pkcanonical.computeMatrix = function (input) {
     //NussinovDPAlgorithm_McCaskill.computeMatrix(input);
     //this.Tables[1] = NussinovDPAlgorithm_McCaskill.Tables[2]
 // resize and initialize matrix
-    this.Tables[0].init(input.sequence(), "C matrix");
-    this.Tables[1].init(input.sequence(), "P matrix");
+    this.Tables[1].init(input.sequence(), "C matrix");
+    this.Tables[0].init(input.sequence(), "P matrix");
 // store minimal loop length
     this.Tables[0].minLoopLength = parseInt(input.loopLength());
     this.Tables[1].minLoopLength = parseInt(input.loopLength());
     
-    this.Tables[0].computeAllCells();
     this.Tables[1].computeAllCells();
+    this.Tables[0].computeAllCells();
 
     return this.Tables;
 };
 
-DPAlgorithm_pkcanonical.Tables[0].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
-	// hack to get traceback calculation (only triggered for table[0]?!)
-	return DPAlgorithm_pkcanonical.Tables[1].getSubstructures(sigma,P,traces,delta,maxLengthR);
+DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
+	// no traces to be produced for auxiliary table
+	return [];
 };
 
-DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
+DPAlgorithm_pkcanonical.Tables[0].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
 	var R = [];
 	var ij = sigma.pop();
 	var Nmax = this.getValue(1, this.sequence.length);
@@ -1853,8 +1853,8 @@ DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces,
 			{
 				continue;
 			}   
-			var d1 = Math.min ((k-i),(l-k),DPAlgorithm_pkcanonical.Tables[0].getValue(i,l));
-			var d2 = Math.min (DPAlgorithm_pkcanonical.Tables[0].getValue(k,j),(j-i),(l-k-d1+1));
+			var d1 = Math.min ((k-i),(l-k),DPAlgorithm_pkcanonical.Tables[1].getValue(i,l));
+			var d2 = Math.min (DPAlgorithm_pkcanonical.Tables[1].getValue(k,j),(j-i),(l-k-d1+1));
 
 			var sigma_prime = JSON.stringify(sigma);
 			sigma_prime = JSON.parse(sigma_prime);

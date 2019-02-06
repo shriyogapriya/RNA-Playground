@@ -103,7 +103,7 @@
 	            <table style="margin:0;">
 	                <thead>
 	                <tr>
-	                    <th class="cell_th">$C$</th>
+	                    <th class="cell_th">$P$</th>
 	                    <th class="cell_th"></th>
 	                    <!-- ko foreach: { data: seqList, as: 'base' } -->
 	                    <th class="cell_mea_th" data-bind="writeSeq: [base, $index()+1]"></th>
@@ -132,14 +132,30 @@
             </div>
 
 	    </div>
+    <div class="row" style="margin:0;">
+     <div class="col_structures">
+            <table id="structures" style="margin:0;">
+                <thead>
+                <tr>
+                    <th id="structTableHeading">Possible Structures</th>
+                </tr>
+                </thead>
+
+                <tbody data-bind="foreach: { data: tracebacks, as: 'tb' }">
+                <tr><td id="structTableCells" data-bind="text: tb.structure, event: {mousedown:$parent.clickStructure}"
+                    onclick="fornaRendering( document.getElementById('rawSeq').value, this)"></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
     
     
-    
+    <div class="row" style="margin:0;">
     <div class="scroll_table">
-      <table id="matrixp">
+      <table id="matrixc">
             <thead>
             <tr>
-                <th class="cell_count" style="font-size: 16px; color: darkslategray">$P$</th>
+                <th class="cell_count" style="font-size: 16px; color: darkslategray">$C$</th>
                 <th class="cell_count"></th>
             <!-- ko foreach: { data: seqList, as: 'base' } -->
                 <th class="cell_count" data-bind="writeSeq: [base, $index()+1]"></th>
@@ -164,21 +180,8 @@
                 style="display: none; border: 1px solid grey; padding: 6px 14px;letter-spacing: 2px; background: #fff;"></td>
         </tr>
         </table>
-    <div class="col_structures">
-            <table id="structures" style="margin:0;">
-                <thead>
-                <tr>
-                    <th id="structTableHeading">Possible Structures</th>
-                </tr>
-                </thead>
-
-                <tbody data-bind="foreach: { data: tracebacks, as: 'tb' }">
-                <tr><td id="structTableCells" data-bind="text: tb.structure, event: {mousedown:$parent.clickStructure}"
-                    onclick="fornaRendering( document.getElementById('rawSeq').value, this)"></td></tr>
-                </tbody>
-            </table>
-        </div>
-</div>
+	 </div>
+ </div>
 <script src="js/visualize.js"></script>
 <!-- ensure structure list changes clear the forna rendering -->
 <script type="text/javascript">/* <![CDATA[ */$("#structures").bind("DOMSubtreeModified", fornaClear);/* ]]> */</script>
