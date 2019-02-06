@@ -448,6 +448,7 @@ var NussinovMatrix = {
         var linked = this.sequence.indexOf("X");
         if(linked == -1){
             for (var i in x) {
+
                 str = str.substr(0, x[i][0] - 1) + "(" + str.substr(x[i][0], str.length);
                 str = str.substr(0, x[i][1] - 1) + ")" + str.substr(x[i][1], str.length);
             }
@@ -472,6 +473,47 @@ var NussinovMatrix = {
             return str;
         }
     },
+
+    // /**
+    //  * Construct a two string representing the matching base pairs in the sequence.
+    //  * @param y A list of pairs of indices, that represent the matching base pairs.
+    //  * @returns {string} A representation of the matching base pairs in the matching.
+    //  */
+    // con_str: function (y, length) {
+    //     var str = "";
+    //     for (var l = 0; l < length; l++) {
+    //         str += ".";
+    //     }
+    //     var linked = this.sequence.indexOf("Y");
+    //     if(linked == -1){
+    //         for (var i in y) {
+    //             if(y[i][0]  <= linked && y[i][1] >= linked + 1 + this.minLoopLength) {
+    //                 str = str.substr(0, y[i][0] - 1) + "[" + str.substr(y[i][0], str.length);
+    //                 str = str.substr(0, y[i][1] - 1) + "]" + str.substr(y[i][1], str.length);
+    //             }
+    //             else{
+    //                 str = str.substr(0, y[i][0] - 1) + "(" + str.substr(y[i][0], str.length);
+    //                 str = str.substr(0, y[i][1] - 1) + ")" + str.substr(y[i][1], str.length);
+
+    //             }
+    //         }
+    //         return str;
+    //     } else {
+    //         for (var i in y) {
+    //             str = str.substr(0, y[i][0] - 1) + "(" + str.substr(y[i][0], str.length);
+    //             str = str.substr(0, y[i][1] - 1) + ")" + str.substr(y[i][1], str.length);
+                
+    //         }
+    //         var st = "";
+    //         for (var l = 0; l < this.minLoopLength + 1; ++l) {
+    //             st += "Y";
+    //         }
+    //         str = str.substr(0, linked) + st + str.substr(linked + this.minLoopLength + 1, str.length);
+    //         return str;
+    //     }
+    // },
+
+
 
 };
 
@@ -1585,11 +1627,11 @@ DPAlgorithm_pkcanonical.Description = "Pseudoknot Prediction";
 DPAlgorithm_pkcanonical.Tables = new Array();
 DPAlgorithm_pkcanonical.Tables.push(Object.create(NussinovMatrix));
 DPAlgorithm_pkcanonical.Tables.push(Object.create(NussinovMatrix));
-DPAlgorithm_pkcanonical.Tables[1].latex_representation = "C(i,j) = \\max \\begin{cases} C(i+1,j-1)+1 & \\text{if }j-i>l \\text{ and } S_i,S_j \\text{ compl. base pair} \\\\ 0 & \\text{else} \\end{cases}";
-DPAlgorithm_pkcanonical.Tables[0].latex_representation= "P(i,j) = \\max \\begin{cases} P(i,j-1) & S_j \\text{ unpaired} \\\\ \\max_{i\\leq k< (j-l)} P(i,k-1)+P(k+1,j-1)+1 & \\text{if } S_k,S_j \\text{ compl. base pair}\\\\ \\max_{i < k < l < j ,\\\\  1 \\le d1 \\le C(i,l) ,\\\\  1 \\le d2 \\le C(k,l), \\\\  (d1+d2) \\le (l-k+1) }  d1 + P(i+d1,k-1) + d2 \\ + P(k+d2,l-d1) + P(l+1,j-d2)  \\end{cases}";
+DPAlgorithm_pkcanonical.Tables[0].latex_representation = "C(i,j) = \\max \\begin{cases} C(i+1,j-1)+1 & \\text{if }j-i>l \\text{ and } S_i,S_j \\text{ compl. base pair} \\\\ 0 & \\text{else} \\end{cases}";
+DPAlgorithm_pkcanonical.Tables[1].latex_representation= "P(i,j) = \\max \\begin{cases} P(i,j-1) & S_j \\text{ unpaired} \\\\ \\max_{i\\leq k< (j-l)} P(i,k-1)+P(k+1,j-1)+1 & \\text{if } S_k,S_j \\text{ compl. base pair}\\\\ \\max_{i < k < l < j ,\\\\  1 \\le d1 \\le C(i,l) ,\\\\  1 \\le d2 \\le C(k,l), \\\\  (d1+d2) \\le (l-k+1) }  d1 + P(i+d1,k-1) + d2 \\ + P(k+d2,l-d1) + P(l+1,j-d2)  \\end{cases}";
 
 
-DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
+DPAlgorithm_pkcanonical.Tables[0].computeCell = function(i, j) {
 
     var curCell = Object.create(NussinovCell).init(i, j, 0);
 
@@ -1606,7 +1648,7 @@ DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
     return curCell;
 };
 
-DPAlgorithm_pkcanonical.Tables[0].computeCell = function(i, j) {
+DPAlgorithm_pkcanonical.Tables[1].computeCell = function(i, j) {
 
     var curCell = Object.create(NussinovCell).init(i, j, 0);
 
@@ -1636,8 +1678,8 @@ DPAlgorithm_pkcanonical.Tables[0].computeCell = function(i, j) {
             {
                 continue;
             }   
-            var d1 = Math.min ((k-i),(l-k),DPAlgorithm_pkcanonical.Tables[1].getValue(i,l));
-            var d2 = Math.min (DPAlgorithm_pkcanonical.Tables[1].getValue(k,j),(j-i),(l-k-d1+1));
+            var d1 = Math.min ((k-i),(l-k),DPAlgorithm_pkcanonical.Tables[0].getValue(i,l));
+            var d2 = Math.min (DPAlgorithm_pkcanonical.Tables[0].getValue(k,j),(j-i),(l-k-d1+1));
             this.updateCell(curCell,this.getValue(i+d1,k-1)+this.getValue(k+d2,l-d1)+this.getValue(l+1,j-d2)+d1+d2, Object.create(NussinovCellTrace).init([[i + d1, k - 1], [k + d2, l - d1], [l + 1 , j - d2]] ));
                                         
            
@@ -1646,21 +1688,6 @@ DPAlgorithm_pkcanonical.Tables[0].computeCell = function(i, j) {
      // else
     return curCell;
 };
-
-DPAlgorithm_pkcanonical.Tables[1].updateCell = function (curCell, curVal, curAncestor) {
-
-    if (curCell === null || curCell.value <= curVal) {
-        // check for new maximal value
-        if (curCell === null || curCell.value < curVal) {
-            // reset ancestor list
-            curCell.traces = [];
-            // store new maximum
-            curCell.value = curVal;
-        }
-        // store this ancestor
-        curCell.traces.push(curAncestor);
-    }
-}
 
 DPAlgorithm_pkcanonical.Tables[0].updateCell = function (curCell, curVal, curAncestor) {
 
@@ -1677,21 +1704,37 @@ DPAlgorithm_pkcanonical.Tables[0].updateCell = function (curCell, curVal, curAnc
     }
 }
 
-DPAlgorithm_pkcanonical.computeMatrix = function (input) {
+DPAlgorithm_pkcanonical.Tables[1].updateCell = function (curCell, curVal, curAncestor) {
 
+    if (curCell === null || curCell.value <= curVal) {
+        // check for new maximal value
+        if (curCell === null || curCell.value < curVal) {
+            // reset ancestor list
+            curCell.traces = [];
+            // store new maximum
+            curCell.value = curVal;
+        }
+        // store this ancestor
+        curCell.traces.push(curAncestor);
+    }
+}
+
+DPAlgorithm_pkcanonical.computeMatrix = function (input) {
+    //NussinovDPAlgorithm_McCaskill.computeMatrix(input);
+    //this.Tables[1] = NussinovDPAlgorithm_McCaskill.Tables[2]
 // resize and initialize matrix
-    this.Tables[1].init(input.sequence(), "C matrix");
-    this.Tables[0].init(input.sequence(), "P matrix");
+    this.Tables[0].init(input.sequence(), "C matrix");
+    this.Tables[1].init(input.sequence(), "P matrix");
 // store minimal loop length
     this.Tables[0].minLoopLength = parseInt(input.loopLength());
     this.Tables[1].minLoopLength = parseInt(input.loopLength());
     
-    this.Tables[1].computeAllCells();
     this.Tables[0].computeAllCells();
+    this.Tables[1].computeAllCells();
 
     return this.Tables;
 };
-DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
+DPAlgorithm_pkcanonical.Tables[0].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
     var R = [];
     var ij = sigma.pop();
     var Nmax = this.getValue(1, this.sequence.length);
@@ -1707,7 +1750,7 @@ DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces,
     }
 };
 
-DPAlgorithm_pkcanonical.Tables[0].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
+DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
     var R = [];
     var ij = sigma.pop();
     var Nmax = this.getValue(1, this.sequence.length);
@@ -1723,7 +1766,44 @@ DPAlgorithm_pkcanonical.Tables[0].getSubstructures = function (sigma, P, traces,
         return R;
     }
 
+    // // if (i,j) == (i+1,j-1) + bp(ij)
+    // {
+    //     if (ij[1] - ij[0] > this.minLoopLength) {
+    //         //console.log(this.sequence);
+    //         //console.log(this.sequence[ij[0] - 1], this.sequence[ij[1] - 1]);
+    //         if (RnaUtil.areComplementary(this.sequence[ij[0] - 1], this.sequence[ij[1] - 1])) {
+    //             var sigma_prime = JSON.stringify(sigma);
+    //             sigma_prime = JSON.parse(sigma_prime);
+    //             sigma_prime.push([ij[0] + 1, ij[1] - 1]);
 
+    //             var P_prime = JSON.stringify(P);
+    //             P_prime = JSON.parse(P_prime);
+    //             P_prime.push([ij[0], ij[1]]);
+
+    //             var tmp_traces = JSON.stringify(traces);
+    //             tmp_traces = JSON.parse(tmp_traces);
+
+    //             var NSprime = this.countBasepairs(P_prime, sigma_prime);
+
+    //             if (NSprime >= Nmax - delta) {
+    //                 var S_prime = {};
+    //                 S_prime.sigma = sigma_prime;
+    //                 S_prime.P = P_prime;
+    //                 tmp_traces.unshift([ij, [[ij[0] + 1, ij[1] - 1]]]);
+    //                 S_prime.traces = tmp_traces;
+    //                 //console.log("i+1,j-1:", JSON.stringify(S_prime));
+    //                 // push to the front to keep base pair most prominent to refine
+    //                 R.unshift(S_prime);
+    //             }
+    //         }
+    //     }
+
+    //     // check if enough structures found so far
+    //     if (R.length >= maxLengthR) {
+    //         //console.log("returning R:", JSON.stringify(R));
+    //         return R;
+    //     }
+    // }
 
     // if (i,j) == (i,j-1)
     {
@@ -1848,8 +1928,8 @@ DPAlgorithm_pkcanonical.Tables[0].getSubstructures = function (sigma, P, traces,
 
             // check if enough structures found so far
             if (R.length >= maxLengthR) {
-                //console.log("returning R:", JSON.stringify(R));
-                return R;
+            //console.log("returning R:", JSON.stringify(R));
+            return R;
             }
             
                                           

@@ -111,7 +111,7 @@
 	                </tr>
 	                </thead>
 
-	                <tbody id="matrix_body" data-bind="foreach: { data: cells()[1], as: 'cell' }">
+	                <tbody id="matrix_body" data-bind="foreach: { data: cells()[0], as: 'cell' }">
 	                <tr>
 	                    <th class="cell_th" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
 	                    <!-- ko foreach: { data: cell, as: 'v' } -->
@@ -147,7 +147,7 @@
             </tr>
             </thead>
     
-            <tbody id="matrix_body" data-bind="foreach: { data: cells()[0], as: 'cell' }">
+            <tbody id="matrix_body" data-bind="foreach: { data: cells()[1], as: 'cell' }">
                 <tr>
                     <th class="cell_mea_th" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
                     <!-- ko foreach: { data: cell, as: 'v' } -->
@@ -158,6 +158,12 @@
       </table>
     </div>
     <div><a href="javascript:generate_tables()">Download Tables</a></div>
+    <table style="display:none;margin:0;">
+        <tr>
+            <td id="info"
+                style="display: none; border: 1px solid grey; padding: 6px 14px;letter-spacing: 2px; background: #fff;"></td>
+        </tr>
+        </table>
     <div class="col_structures">
             <table id="structures" style="margin:0;">
                 <thead>
