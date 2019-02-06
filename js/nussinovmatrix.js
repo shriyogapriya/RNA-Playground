@@ -1744,23 +1744,10 @@ DPAlgorithm_pkcanonical.computeMatrix = function (input) {
 
     return this.Tables;
 };
+
 DPAlgorithm_pkcanonical.Tables[0].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
-	console.log("DPAlgorithm_pkcanonical.Tables[0].getSubstructures");
+	// hack to get traceback calculation (only triggered for table[0]?!)
 	return DPAlgorithm_pkcanonical.Tables[1].getSubstructures(sigma,P,traces,delta,maxLengthR);
-//    var R = [];
-//    return R;
-//    var ij = sigma.pop();
-//    var Nmax = this.getValue(1, this.sequence.length);
-//
-//    {
-//        var S_prime = {};
-//        S_prime.sigma = sigma;
-//        S_prime.P = P;
-//        S_prime.traces = traces;
-//        S_prime.potential = delta;
-//        R.push(S_prime);
-//        return R;
-//    }
 };
 
 DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
@@ -1768,7 +1755,6 @@ DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces,
 	var ij = sigma.pop();
 	var Nmax = this.getValue(1, this.sequence.length);
 	
-	console.log("DPAlgorithm_pkcanonical.Tables[1].getSubstructures( ij = ",ij[0]," ",ij[1]," )");
 
 	if (ij[0] >= ij[1])
 	{
@@ -1781,44 +1767,6 @@ DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces,
 		return R;
 	}
 
-	// // if (i,j) == (i+1,j-1) + bp(ij)
-	// {
-	//     if (ij[1] - ij[0] > this.minLoopLength) {
-	//         //console.log(this.sequence);
-	//         //console.log(this.sequence[ij[0] - 1], this.sequence[ij[1] - 1]);
-	//         if (RnaUtil.areComplementary(this.sequence[ij[0] - 1], this.sequence[ij[1] - 1])) {
-	//             var sigma_prime = JSON.stringify(sigma);
-	//             sigma_prime = JSON.parse(sigma_prime);
-	//             sigma_prime.push([ij[0] + 1, ij[1] - 1]);
-
-	//             var P_prime = JSON.stringify(P);
-	//             P_prime = JSON.parse(P_prime);
-	//             P_prime.push([ij[0], ij[1]]);
-
-	//             var tmp_traces = JSON.stringify(traces);
-	//             tmp_traces = JSON.parse(tmp_traces);
-
-	//             var NSprime = this.countBasepairs(P_prime, sigma_prime);
-
-	//             if (NSprime >= Nmax - delta) {
-	//                 var S_prime = {};
-	//                 S_prime.sigma = sigma_prime;
-	//                 S_prime.P = P_prime;
-	//                 tmp_traces.unshift([ij, [[ij[0] + 1, ij[1] - 1]]]);
-	//                 S_prime.traces = tmp_traces;
-	//                 //console.log("i+1,j-1:", JSON.stringify(S_prime));
-	//                 // push to the front to keep base pair most prominent to refine
-	//                 R.unshift(S_prime);
-	//             }
-	//         }
-	//     }
-
-	//     // check if enough structures found so far
-	//     if (R.length >= maxLengthR) {
-	//         //console.log("returning R:", JSON.stringify(R));
-	//         return R;
-	//     }
-	// }
 
 	// if (i,j) == (i,j-1)
 	{
@@ -1891,7 +1839,6 @@ DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces,
 			}
 		}
 	}
-	console.log("tracing PKs");
 
 	var i = ij[0];
 	var j = ij[1];
@@ -1906,7 +1853,6 @@ DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces,
 			{
 				continue;
 			}   
-			console.log("checking pk i,k,l,j = ",i," ",k," ",l, " ",j);
 			var d1 = Math.min ((k-i),(l-k),DPAlgorithm_pkcanonical.Tables[0].getValue(i,l));
 			var d2 = Math.min (DPAlgorithm_pkcanonical.Tables[0].getValue(k,j),(j-i),(l-k-d1+1));
 
@@ -1933,7 +1879,6 @@ DPAlgorithm_pkcanonical.Tables[1].getSubstructures = function (sigma, P, traces,
 
 			var NSprime = this.countBasepairs(tmp_P, sigma_prime);
 
-			console.log("NSprime = ",NSprime," vs NMax - delta ",Nmax," ",delta);
 			if (NSprime >= Nmax - delta) {
 
 				var S_prime = {};
