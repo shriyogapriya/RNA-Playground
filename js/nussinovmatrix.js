@@ -448,9 +448,23 @@ var NussinovMatrix = {
         var linked = this.sequence.indexOf("X");
         if(linked == -1){
             for (var i in x) {
-
-                str = str.substr(0, x[i][0] - 1) + "(" + str.substr(x[i][0], str.length);
-                str = str.substr(0, x[i][1] - 1) + ")" + str.substr(x[i][1], str.length);
+                var isCrossing = 0;
+                for ( var j in x){
+                    if((x[j][0] < x[i][0] )&&(x[j][1] < x[i][1])&&(x[i][0]< x[j][1]))
+                    {
+                        isCrossing = 1;
+                        break;
+                    }
+                }
+                if (isCrossing == 0) {
+                    str = str.substr(0, x[i][0] - 1) + "(" + str.substr(x[i][0], str.length);
+                    str = str.substr(0, x[i][1] - 1) + ")" + str.substr(x[i][1], str.length);
+                }
+                else{
+                   str = str.substr(0, x[i][0] - 1) + "[" + str.substr(x[i][0], str.length);
+                   str = str.substr(0, x[i][1] - 1) + "]" + str.substr(x[i][1], str.length);
+                }
+               
             }
             return str;
         } else {
