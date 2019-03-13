@@ -49,8 +49,8 @@ var RnaUtil = {
 /**
  * data stored within a cell of a nussinov matrix
  */
-var NussinovCell = {
 
+var NussinovCell = {
 // row
     i: -1,
 
@@ -1940,31 +1940,16 @@ DPAlgorithm_pkAkutsu.initSmatrix = function ( myMatrix, seqlength ) {
     // create matrix cells
     for (var i = 0; i <= seqlength; i++) {
         myMatrix[i] = [];
-    for (var k = 0; k <= seqlength; ++k) {
-        myMatrix[i][k] = [];
-        for (var j = 0; j <= seqlength; j++) {
-            // create new cell and initialize
-            myMatrix[i][j][k] = -1; // stands for minus infinity
-        }
-    }
+	    for (var j = 0; j <= seqlength; j++) {
+	        myMatrix[i][j] = [];
+	        for (var k = 0; k <= seqlength; ++k) {
+	            // create new cell and initialize
+	            myMatrix[i][j][k] = -1; // stands for minus infinity
+	        }
+	    }
     }
     
 }
-
-DPAlgorithm_pkAkutsu.computeSmatrice = function( i0, k0, loopLength ) {
-    // put for loops for i,j,k and compute SL,SM,SR table entries ...
-
-    for(var i = i0; i <= k0-1; i++){
-        for(var k = i+1; k <= k0; k++){
-            for(var j = i; j <= k; j++){
-
-                this.updateCell(curCell, Object.create(NussinovCellTrace).init([i0, k0]));
-
-            }
-        }
-    }
-};
-
 
 DPAlgorithm_pkAkutsu.Tables[0].computeCell = function(i, j) {
 
@@ -1976,42 +1961,101 @@ DPAlgorithm_pkAkutsu.Tables[0].computeCell = function(i, j) {
         return curCell;
     }
 
-    // check (i,j) base pairh
-    if ((j - i > this.minLoopLength) && RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[j - 1])) {
+    // check (i,j) base pair
+    if ((j - i > DPAlgorithm_pkAkutsu.Tables[0].minLoopLength) && RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[j - 1])) {
         // get value for base pair
-        this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i + 1, j - 1]], [[i, j]]));
+    	DPAlgorithm_pkAkutsu.Tables[0].updateCell(curCell, Object.create(NussinovCellTrace).init([[i + 1, j - 1]], [[i, j]]));
     }
 
     // check decomposition into substructures 
     for (var k = i; k < j; k++) {
         // get decomposition value
-        this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i, k], [k + 1, j]], []));
+    	DPAlgorithm_pkAkutsu.Tables[0].updateCell(curCell, Object.create(NussinovCellTrace).init([[i, k], [k + 1, j]], []));
     }
+    
+    // check pseudoknot case
+    // update with pseudoknot base pair list of Table[1]
+    DPAlgorithm_pkAkutsu.Tables[0].updateCell(curCell, Object.create(NussinovCellTrace).init([], [DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces.bps]));
 
     return curCell;
 };
 
-DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
 
+
+DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
+	
+	var curCell = Object.create(NussinovCell).init(i0, k0, 0);
+	
+	// variables holding the maximal entry of SL,SM,SR
+	var maxVal = 0;
+	var maxI = i0;
+	var maxJ = i0;
+	var maxK = k0;
+	var maxMatrix = '-';
+	
+	// 1) fill auxiliary matrices and 
     // for all i0<k0-1 index combinations (subsequences) 
     for(var i = i0; i <= k0-1; i++){
         for(var k = i+1; k <= k0; k++){
             for(var j = i; j <= k; j++){
 
+            	// compute SL(i,j,k)
+                if ((j - i > DPAlgorithm_pkAkutsu.Tables[0].minLoopLength) && RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[j - 1])) {
+                	// get max of all recursive cases
+                	var maxBP = 0;
+                	if (i>i0 && j < k) { 
+                		maxBP = Math.max( 0
+                						, DPAlgorithm_pkAkutsu.SL[i-1][j+1][k] 
+                						, DPAlgorithm_pkAkutsu.SM[i-1][j+1][k] 
+                						, DPAlgorithm_pkAkutsu.SR[i-1][j+1][k]
+                				); 
+            		}
+                	// store value
+                	DPAlgorithm_pkAkutsu.SL[i][j][k] = maxBP + 1;
+                	// update max*
+                	if ( maxBP + 1 > maxVal ) {
+                		maxMatrix = 'L';
+                		maxVal =  maxBP + 1;
+                		maxI = i;
+                		maxJ = j;
+                		maxK = k;
+                	}
+                } else {
+                	// default
+                	DPAlgorithm_pkAkutsu.SL[i][j][k] = -1;
+                }
+            	
+                // default of SM(i,j,k)
+                DPAlgorithm_pkAkutsu.SM[i][j][k] = 0;
+                // TODO compute SM(i,j,k)
+            	
+            	// TODO compute SR(i,j,k)
             }
         }
     }
-    // 1) fill auxiliary matrices
-    DPAlgorithm_pkAkutsu.computeSmatrice( i0,k0, this.Tables[1].minLoopLength );
-    // 2) update for each SL,SR,SM the entry of Spseudo(i0,k0)
+    
+    
+    // 2) traceback respective list of base pairs for maxVal
+    var pkBasePairs = [];
+//    while (maxVal > 0) {
+//    	// trace current cell
+//    	// store base pair if any was added (maxMatrix == 'L'|'R')
+//    	// update max*
+//    	maxVal -= 1; // if base pair was added
+//    }
+	
+    // store list of pseudoknot base pairs in Spseudo table
+    DPAlgorithm_pkAkutsu.Tables[0].updateCell(curCell, Object.create(NussinovCellTrace).init([], pkBasePairs));
+    
+	return curCell;
 };
 
 DPAlgorithm_pkAkutsu.computeMatrix = function (input) {
 
     // init (create) auxiliary matrices
-    DPAlgorithm_pkAkutsu.initSmatrix(  DPAlgorithm_pkAkutsu.SL, input.sequence.length );
-    DPAlgorithm_pkAkutsu.initSmatrix(  DPAlgorithm_pkAkutsu.SM, input.sequence.length );
-    DPAlgorithm_pkAkutsu.initSmatrix(  DPAlgorithm_pkAkutsu.SR, input.sequence.length );
+    DPAlgorithm_pkAkutsu.initSmatrix(  DPAlgorithm_pkAkutsu.SL, input.sequence().length );
+    DPAlgorithm_pkAkutsu.initSmatrix(  DPAlgorithm_pkAkutsu.SR, input.sequence().length );
+    DPAlgorithm_pkAkutsu.initSmatrix(  DPAlgorithm_pkAkutsu.SM, input.sequence().length );
 
     // store minimal loop length
     this.Tables[0].minLoopLength = parseInt(input.loopLength());
@@ -2026,13 +2070,6 @@ DPAlgorithm_pkAkutsu.computeMatrix = function (input) {
 
     return this.Tables;
 };
-// step 0 remove Nussinov3d.. :}
-
-// step 0.1 disable deltaBP for canonical PK input
-
-// step 1 implement respective html page (no deltaBP selection needed) and register algorithm
-
-// step 2 implement table 0 and 1 recursions
 
 DPAlgorithm_pkAkutsu.Tables[0].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
 	var R = [];
@@ -2125,6 +2162,12 @@ DPAlgorithm_pkAkutsu.Tables[0].getSubstructures = function (sigma, P, traces, de
         }
 
     }
+    
+    // handle pseudoknot 
+    // TODO get base pairs from DPAlgorithm_pkAkutsu.Tables[1].trace.bps and add to sigma_prime
+    // TODO add pk base pairs to return value
+    
+    
     //console.log("returning R:", JSON.stringify(R));
 
     return R;
@@ -2132,7 +2175,10 @@ DPAlgorithm_pkAkutsu.Tables[0].getSubstructures = function (sigma, P, traces, de
 
 
 DPAlgorithm_pkAkutsu.Tables[1].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
-	// no traces 
+	
+	// no traceback needed, all pseudoknot base pairs are already stored within NussinovTraceCell
+	// and traced via DPAlgorithm_pkAkutsu.Tables[0].getSubstructures
+	
 	return [];
 };
 
