@@ -1930,7 +1930,7 @@ DPAlgorithm_pkAkutsu.Tables = new Array();
 DPAlgorithm_pkAkutsu.Tables.push(Object.create(NussinovMatrix));
 DPAlgorithm_pkAkutsu.Tables.push(Object.create(NussinovMatrix));
 DPAlgorithm_pkAkutsu.Tables[0].latex_representation= "S(i,j) = \\max \\begin{cases} D(i+1,j-1)+1 & \\text{if } S_i,S_j \\text{ compl. base pair} \\\\ \\max_{i\\leq k< j} D(i,k)+D(k+1,j) \\end{cases}";
-DPAlgorithm_pkAkutsu.Tables[1].latex_representation= "Spseudo(i0,k0) = \\max_{i0\\leq i< j <k\\leq k0} \\begin{cases}\\\\ SL(i, j, k) , SM(i, j, k), SR(i, j, k) \\end{cases}";
+DPAlgorithm_pkAkutsu.Tables[1].latex_representation= "Spseudo(i0,k0) = \\max_{i0\\leq i< j <k\\leq k0} \\left\\{\\; SL(i, j, k) , SM(i, j, k), SR(i, j, k) \\;\\right\\}";
 
 DPAlgorithm_pkAkutsu.SL = new Array();
 DPAlgorithm_pkAkutsu.SR = new Array();
@@ -1975,7 +1975,7 @@ DPAlgorithm_pkAkutsu.Tables[0].computeCell = function(i, j) {
     
     // check pseudoknot case
     // update with pseudoknot base pair list of Table[1]
-    DPAlgorithm_pkAkutsu.Tables[0].updateCell(curCell, Object.create(NussinovCellTrace).init([], [DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces.bps]));
+    DPAlgorithm_pkAkutsu.Tables[0].updateCell(curCell, Object.create(NussinovCellTrace).init([], DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces[0].bps));
 
     return curCell;
 };
@@ -2045,8 +2045,8 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
 //    }
 	
     // store list of pseudoknot base pairs in Spseudo table
-    DPAlgorithm_pkAkutsu.Tables[0].updateCell(curCell, Object.create(NussinovCellTrace).init([], pkBasePairs));
-    
+    DPAlgorithm_pkAkutsu.Tables[1].updateCell(curCell, Object.create(NussinovCellTrace).init([], pkBasePairs));
+
 	return curCell;
 };
 
@@ -2164,8 +2164,8 @@ DPAlgorithm_pkAkutsu.Tables[0].getSubstructures = function (sigma, P, traces, de
     }
     
     // handle pseudoknot 
-    // TODO get base pairs from DPAlgorithm_pkAkutsu.Tables[1].trace.bps and add to sigma_prime
-    // TODO add pk base pairs to return value
+    // TODO get base pairs from DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces[0].bps and add to sigma_prime
+    // TODO check if within delta range and add to R (unshift)
     
     
     //console.log("returning R:", JSON.stringify(R));
