@@ -1,0 +1,132 @@
+
+<div class="row" id="introduction">
+    <div class="colW600"> 
+                The algorithm by <a href="https://www.sciencedirect.com/science/article/pii/S0166218X00001864?via%3Dihub ">Akutsu </a> is the extension of Nussinov recursion with pseudoknot case.
+        <div style="padding-left:45px;">
+            <span id="rec_id_0" data-bind="text: latex()[0]"></span>  
+            <span id="rec_id_1" data-bind="text: latex()[1]"></span>
+        </div>
+
+    </div>
+    <div class="colW150">
+        <img alt=" RNA structure" src="pkAkutsu.PNG" width=170 height=120 >
+    </div>
+    <div id="inputContainer">
+
+        <div class="row">
+            <div class="colW200" style="font-size: 120%; vertical-align: bottom; ">RNA sequence $S$:</div>
+            <div class="colW400">
+                <input id="rawSeq" data-bind="value: rawSeq" class="userInput"
+                       placeholder="Example 'GCACGACG'" onkeydown="validate(event)"
+                       style="text-transform:uppercase" />
+            </div>
+        </div>
+ 
+        <div class="row">
+            <div class="colW200" style="font-size: 120%">Minimal loop length $l$:</div>
+            <div class="colW400">
+                <select data-bind="value: loopLength" id="ll" style="width:40px;">
+                    <option value=0>0</option>
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                </select>
+                <label for="ll" style="margin-left:10px;">i.e. minimal number of enclosed positions</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="rec_select" style="display: none;">pkAkutsu</div>
+        </div>
+    </div>
+    <div class="row" id="output" >
+        <div class="col_table">
+            <canvas id="CanvasLayer" style="z-index: 0; border: 0px solid; position: absolute; width: 0px; height: 0px"></canvas>
+            <table style="margin:0;">
+                <thead>
+                <tr>
+                    <th class="cell_th">$S$</th>
+                    <th class="cell_th"></th>
+                    <!-- ko foreach: { data: seqList, as: 'base' } -->
+                    <th class="cell_th" data-bind="writeSeq: [base, $index()+1]"></th>
+                    <!-- /ko -->
+                </tr>
+                </thead>
+ 
+                <tbody id="matrix_body" data-bind="foreach: { data: cells()[0], as: 'cell' }">
+                <tr>
+                    <th class="cell_th" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
+                    <!-- ko foreach: { data: cell, as: 'v' } -->
+                    <td class="cell" data-bind="text: v.i < v.j+2 ? v.value : '',  attr: {title: 'i=' + v.i + ' j=' + v.j}, event: { mousedown: $root.clickCell.bind(this) }"></td>
+                    <!-- /ko -->
+                </tr>
+ 
+                </tbody>
+            </table>
+          <br />
+          <a href="javascript:generate_tables()">Download Table</a>
+            <table style="display:none;margin:0;">
+            <tr>
+                <td id="info"
+                    style="display: none; border: 1px solid grey; padding: 6px 14px;letter-spacing: 2px; background: #fff;"></td>
+            </tr>
+            </table>
+        </div>
+ 
+        <div class="col_structures">
+          <table id="structures" style="margin:0;" onchange="fornaClear()">
+              <thead>
+              <tr>
+                 <th id="structTableHeading">Possible Structures</th>
+              </tr>
+              </thead>
+ 
+              <tbody data-bind="foreach: { data: tracebacks, as: 'tb' }">
+              <tr><td id="structTableCells" data-bind="text: tb.structure, event: {mousedown:$parent.clickStructure}"
+                 onclick="fornaRendering( document.getElementById('rawSeq').value, this)"></td></tr>
+              </tbody>
+          </table>
+        </div>
+    </div>
+    
+    <div class="row" style="margin:0;">
+        <div class="scroll_table">
+            <canvas id="CanvasLayer" style="z-index: 0; border: 0px solid; position: absolute; width: 0px; height: 0px"></canvas>
+            <table id="matrixc" style="margin:0;">
+                <thead>
+                <tr>
+                    <th class="cell_count" >$Spseudo$</th>
+                    <th class="cell_count"></th>
+                    <!-- ko foreach: { data: seqList, as: 'base' } -->
+                    <th class="cell_count" data-bind="writeSeq: [base, $index()+1]"></th>
+                    <!-- /ko -->
+                </tr>
+                </thead>
+    
+                <tbody id="matrix_body" data-bind="foreach: { data: cells()[1], as: 'cell' }">
+                <tr>
+                    <th class="cell_mea_th" data-bind="writeSeq: [$root.seqList()[$index()], $index()+1]"></th>
+                    <!-- ko foreach: { data: cell, as: 'v' } -->
+                    <td class="cell" data-bind="text: v.i < v.j+2 ? v.value : '',  attr: {title: 'i=' + v.i + ' j=' + v.j}, event: { mousedown: $root.clickCell.bind(this) }"></td>
+                    <!-- /ko -->
+                </tr>
+                </tbody>
+            </table>
+        
+            <div><a href="javascript:generate_tables()">Download Tables</a></div>
+            <table style="display:none;margin:0;">
+                <tr>
+                    <td id="info"
+                    style="display: none; border: 1px solid grey; padding: 6px 14px;letter-spacing: 2px; background: #fff;"></td>
+                </tr>
+            </table>
+	    </div>
+    </div>
+
+</div>
+<script src="js/visualize.js"></script>
+
+<!-- ensure structure list changes clear the forna rendering -->
+<script type="text/javascript">/* <![CDATA[ */$("#structures").bind("DOMSubtreeModified", fornaClear);/* ]]> */</script>
