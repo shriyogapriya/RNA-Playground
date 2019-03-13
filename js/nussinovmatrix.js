@@ -85,6 +85,7 @@ var NussinovCell = {
 };
 
 
+
 /**
  * Ancestor information for a certain traceback
  */
@@ -1920,9 +1921,232 @@ DPAlgorithm_pkcanonical.Tables[0].getSubstructures = function (sigma, P, traces,
 	return R; 
 };
 
+////////////////////////////////////////////////////////////////////////////
+
+var DPAlgorithm_pkAkutsu = Object.create(DPAlgorithm);
+
+DPAlgorithm_pkAkutsu.Description = " Akutsu ";
+DPAlgorithm_pkAkutsu.Tables = new Array();
+DPAlgorithm_pkAkutsu.Tables.push(Object.create(NussinovMatrix));
+DPAlgorithm_pkAkutsu.Tables.push(Object.create(NussinovMatrix));
+DPAlgorithm_pkAkutsu.Tables[0].latex_representation= "S(i,j) = \\max \\begin{cases} D(i+1,j-1)+1 & \\text{if } S_i,S_j \\text{ compl. base pair} \\\\ \\max_{i\\leq k< j} D(i,k)+D(k+1,j) \\end{cases}";
+DPAlgorithm_pkAkutsu.Tables[1].latex_representation= "Spseudo(i0,k0) = \\max_{i0\\leq i< j <k\\leq k0} \\begin{cases}\\\\ SL(i, j, k) , SM(i, j, k), SR(i, j, k) \\end{cases}";
+
+DPAlgorithm_pkAkutsu.SL = new Array();
+DPAlgorithm_pkAkutsu.SR = new Array();
+DPAlgorithm_pkAkutsu.SM = new Array();
+
+DPAlgorithm_pkAkutsu.initSmatrix = function ( myMatrix, seqlength ) {
+    // create matrix cells
+    for (var i = 0; i <= seqlength; i++) {
+        myMatrix[i] = [];
+    for (var k = 0; k <= seqlength; ++k) {
+        myMatrix[i][k] = [];
+        for (var j = 0; j <= seqlength; j++) {
+            // create new cell and initialize
+            myMatrix[i][j][k] = -1; // stands for minus infinity
+        }
+    }
+    }
+    
+}
+
+DPAlgorithm_pkAkutsu.computeSmatrice = function( i0, k0, loopLength ) {
+    // put for loops for i,j,k and compute SL,SM,SR table entries ...
+
+    for(var i = i0; i <= k0-1; i++){
+        for(var k = i+1; k <= k0; k++){
+            for(var j = i; j <= k; j++){
+
+                this.updateCell(curCell, Object.create(NussinovCellTrace).init([i0, k0]));
+
+            }
+        }
+    }
+};
 
 
-///////////////////////////////////////////////////////
+DPAlgorithm_pkAkutsu.Tables[0].computeCell = function(i, j) {
+
+    // compute overall recursion see page 3
+
+    var curCell = Object.create(NussinovCell).init(i, j, 0);
+
+    if (this.isInvalidState(i, j)) {
+        return curCell;
+    }
+
+    // check (i,j) base pairh
+    if ((j - i > this.minLoopLength) && RnaUtil.areComplementary(this.sequence[i - 1], this.sequence[j - 1])) {
+        // get value for base pair
+        this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i + 1, j - 1]], [[i, j]]));
+    }
+
+    // check decomposition into substructures 
+    for (var k = i; k < j; k++) {
+        // get decomposition value
+        this.updateCell(curCell, Object.create(NussinovCellTrace).init([[i, k], [k + 1, j]], []));
+    }
+
+    return curCell;
+};
+
+DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
+
+    // for all i0<k0-1 index combinations (subsequences) 
+    for(var i = i0; i <= k0-1; i++){
+        for(var k = i+1; k <= k0; k++){
+            for(var j = i; j <= k; j++){
+
+            }
+        }
+    }
+    // 1) fill auxiliary matrices
+    DPAlgorithm_pkAkutsu.computeSmatrice( i0,k0, this.Tables[1].minLoopLength );
+    // 2) update for each SL,SR,SM the entry of Spseudo(i0,k0)
+};
+
+DPAlgorithm_pkAkutsu.computeMatrix = function (input) {
+
+    // init (create) auxiliary matrices
+    DPAlgorithm_pkAkutsu.initSmatrix(  DPAlgorithm_pkAkutsu.SL, input.sequence.length );
+    DPAlgorithm_pkAkutsu.initSmatrix(  DPAlgorithm_pkAkutsu.SM, input.sequence.length );
+    DPAlgorithm_pkAkutsu.initSmatrix(  DPAlgorithm_pkAkutsu.SR, input.sequence.length );
+
+    // store minimal loop length
+    this.Tables[0].minLoopLength = parseInt(input.loopLength());
+    this.Tables[1].minLoopLength = parseInt(input.loopLength());
+
+    // resize and initialize matrix
+    this.Tables[1].init(input.sequence(), "Spseudo matrix");
+    this.Tables[0].init(input.sequence(), "S matrix");
+    
+    this.Tables[1].computeAllCells();
+    this.Tables[0].computeAllCells();
+
+    return this.Tables;
+};
+// step 0 remove Nussinov3d.. :}
+
+// step 0.1 disable deltaBP for canonical PK input
+
+// step 1 implement respective html page (no deltaBP selection needed) and register algorithm
+
+// step 2 implement table 0 and 1 recursions
+
+DPAlgorithm_pkAkutsu.Tables[0].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
+	var R = [];
+	var ij = sigma.pop();
+	var Nmax = this.getValue(1, this.sequence.length);
+	
+
+	if (ij[0] >= ij[1])
+	{
+		var S_prime = {};
+		S_prime.sigma = sigma;
+		S_prime.P = P;
+		S_prime.traces = traces;
+		S_prime.potential = delta;
+		R.push(S_prime);
+		return R;
+    }
+    
+    // if (i,j) == (i+1,j-1) + bp(ij)
+    {
+        if (ij[1] - ij[0] > this.minLoopLength) {
+            //console.log(this.sequence);
+            //console.log(this.sequence[ij[0] - 1], this.sequence[ij[1] - 1]);
+            if (RnaUtil.areComplementary(this.sequence[ij[0] - 1], this.sequence[ij[1] - 1])) {
+                var sigma_prime = JSON.stringify(sigma);
+                sigma_prime = JSON.parse(sigma_prime);
+                sigma_prime.push([ij[0] + 1, ij[1] - 1]);
+
+                var tmp_P = JSON.stringify(P);
+                tmp_P = JSON.parse(tmp_P);
+                tmp_P.push([ij[0], ij[1]]);
+
+                var tmp_traces = JSON.stringify(traces);
+                tmp_traces = JSON.parse(tmp_traces);
+
+                var NSprime = this.countBasepairs(tmp_P, sigma_prime);
+
+                if (NSprime >= Nmax - delta) {
+                    var S_prime = {};
+                    S_prime.sigma = sigma_prime;
+                    S_prime.P = tmp_P;
+                    tmp_traces.unshift([ij, [[ij[0] + 1, ij[1] - 1]]]);
+                    S_prime.traces = tmp_traces;
+                    //console.log("i+1,j-1:", JSON.stringify(S_prime));
+                    // push to the front to keep base pair most prominent to refine
+                    R.unshift(S_prime);
+                }
+            }
+        }
+
+        // check if enough structures found so far
+        if (R.length >= maxLengthR) {
+            //console.log("returning R:", JSON.stringify(R));
+            return R;
+        }
+    }
+
+    // if (i,j) == (i,l) + (l+1, j)
+    for (var l = ij[0]; l < ij[1]; l++) {
+        //console.log('here');
+        var sigma_prime = JSON.stringify(sigma);
+        sigma_prime = JSON.parse(sigma_prime);
+        sigma_prime.push([ij[0], l]);
+        sigma_prime.push([l + 1, ij[1]]);
+
+        var tmp_P = JSON.stringify(P);
+        tmp_P = JSON.parse(tmp_P);
+
+        var tmp_traces = JSON.stringify(traces);
+        tmp_traces = JSON.parse(tmp_traces);
+
+        var NSprime = this.countBasepairs(tmp_P, sigma_prime);
+
+        if (NSprime >= Nmax - delta) {
+
+            var S_prime = {};
+            S_prime.sigma = sigma_prime;
+            S_prime.P = tmp_P;
+            tmp_traces.unshift([ij, [[ij[0], l], [l + 1, ij[1]]]]);
+            S_prime.traces = tmp_traces;
+            //console.log("ilj:", JSON.stringify(S_prime));
+            // push to the front to keep base pair most prominent to refine
+            R.unshift(S_prime);
+        }
+
+        // check if enough structures found so far
+        if (R.length >= maxLengthR) {
+            //console.log("returning R:", JSON.stringify(R));
+            return R;
+        }
+
+    }
+    //console.log("returning R:", JSON.stringify(R));
+
+    return R;
+};
+
+
+DPAlgorithm_pkAkutsu.Tables[1].getSubstructures = function (sigma, P, traces, delta, maxLengthR) {
+	// no traces 
+	return [];
+};
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 var DPAlgorithm_MEA = Object.create(DPAlgorithm);
 

@@ -145,6 +145,18 @@ function NussinovMatrixViewModel() {
         }
     });
 
+    self.pkAkutsuRecursion = ko.computed(function () {
+        //console.log($(rec_select).text());
+        if ($(rec_select).text() === "pkAkutsu") {
+            console.log("pkAkutsu");
+            self.input.recursion("pkAkutsu");
+            self.input.allowTraceback = true;
+            //self.input.allowTraceback = false;
+            //cellWidth = 48;
+            //cellHeight = 28;
+        }
+    });
+
 
     self.seqList = ko.computed(function () {
         return self.input.sequence().toUpperCase().split("");

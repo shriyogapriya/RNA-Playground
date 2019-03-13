@@ -653,6 +653,8 @@ var availableAlgorithms = {
 
     rnaup: DPAlgorithm_rnaup,
 
-    pkCanonical: DPAlgorithm_pkcanonical
+    pkCanonical: DPAlgorithm_pkcanonical,
+
+    pkAkutsu: DPAlgorithm_pkAkutsu
 
 };
