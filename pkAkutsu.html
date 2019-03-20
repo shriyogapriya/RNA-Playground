@@ -3,27 +3,27 @@
     <div class="colW600"> 
         The algorithm by <a href="https://www.sciencedirect.com/science/article/pii/S0166218X00001864?via%3Dihub ">Akutsu </a> is the extension of Nussinov recursion with pseudoknot case. The simple pseduknot structure is the combination of two stem loops. 
         For finding a simple pseudoknot substructure whose endpoints are i0th and k0th residues, we consider triplets $(i,j,k)$ $(i0-1 <= i < j <= k <= k0 )$ instead of $(i,j)$.
-        The properties of $i0$ till $K0$ in (A) exists $j'0$ and $j0$ with
+        The properties of $i0$ till $k_{0}$ in (A) exists $j'_{0}$ and $j_{0}$ with
         <br />
         <br /> 
-        (1) $j'0$ and $j0$ are in hairpins
+        (1) $j'_{0}$ and $j_{0}$ are in hairpins
         <br /> 
-        (2) structure $[i0..j0]$ and $[j'0 and k0]$ are stem loops 
+        (2) structure $[i_{0} .. j_{0}]$ and $[j'_{0} .. k_{0}]$ are stem loops 
         <br /> 
-        (3) list of such structures for sub sequences $ai0$...$ak0$
+        (3) list of such structures for sub sequences $i_{0} .. k_{0}$
         <br /> 
         <br /> 
-        we consider three types of triplets SL(i,j,k), SM(i,j,k), and SR(i,j,k). 
+         we consider three types of triplets $SL(i,j,k)$, $SM(i,j,k)$, and $SR(i,j,k)$. 
         The recursions of triplets as follows:
         <br/>
         <br/>
-        "SL(i,j) = \\max \\begin{cases} SL(i-1, j+1, k) , SM(i-1, j+1, k), SR(i-1, j+1, k) +1 \\end{cases}"
+        $$SL(i,j) = \max \left\{ SL(i-1, j+1, k) , SM(i-1, j+1, k), SR(i-1, j+1, k) +1 \right\}$$
         <br/>
         <br/>
-        "SR(i,j) = \\max \\begin{cases} SL(i, j+1, k-1) , SM(i, j+1, k-1), SR(i, j+1, k-1) +1 \\end{cases}"
+        $$SR(i,j) = \max \left\{ SL(i, j+1, k-1) , SM(i, j+1, k-1), SR(i, j+1, k-1) +1 \right\}$$
         <br/>
         <br/>
-        "SM(i,j) = \\max \\begin{cases} SL(i-1, j, k) , SL(i, j+1, k) , SM(i-1, j, k), SM(i, j+1, k) , SM(i, j, k-1) , SR(i, j+1, k) ,SR(i, j, k-1)  \\end{cases}"
+        $$SM(i,j) = \max \begin{cases} SL(i-1, j, k) , SL(i, j+1, k),\\ SM(i-1, j, k), SM(i, j+1, k) , SM(i, j, k-1) ,\\ SR(i, j+1, k) ,SR(i, j, k-1) \end{cases}$$
         <br/>
         <br/>
 

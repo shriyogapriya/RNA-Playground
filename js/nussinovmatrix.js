@@ -1929,7 +1929,7 @@ DPAlgorithm_pkAkutsu.Description = " Akutsu ";
 DPAlgorithm_pkAkutsu.Tables = new Array();
 DPAlgorithm_pkAkutsu.Tables.push(Object.create(NussinovMatrix));
 DPAlgorithm_pkAkutsu.Tables.push(Object.create(NussinovMatrix));
-DPAlgorithm_pkAkutsu.Tables[0].latex_representation= "S(i,j) = \\max \\begin{cases} D(i+1,j-1)+1 & \\text{if } S_i,S_j \\text{ compl. base pair} \\\\ \\max_{i\\leq k< j} D(i,k)+D(k+1,j) &\\text{decomposition} \\\\ \\Spseudo(i,j) &\\text{pseduknot in i ..j} \\end{cases}";
+DPAlgorithm_pkAkutsu.Tables[0].latex_representation= "S(i,j) = \\max \\begin{cases} D(i+1,j-1)+1 & \\text{if } S_i,S_j \\text{ compl. base pair} \\\\ \\max_{i\\leq k< j} D(i,k)+D(k+1,j) &\\text{decomposition} \\\\ Spseudo(i,j) &\\text{pseudoknot in i ..j} \\end{cases}";
 DPAlgorithm_pkAkutsu.Tables[1].latex_representation= "Spseudo(i0,k0) = \\max_{i0\\leq i< j <k\\leq k0} \\left\\{\\; SL(i, j, k) , SM(i, j, k), SR(i, j, k) \\;\\right\\}";
 
 DPAlgorithm_pkAkutsu.SL = new Array();
@@ -2024,39 +2024,47 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
                 	// default
                 	DPAlgorithm_pkAkutsu.SL[i][j][k] = -1;
                 }
-                
+               
                  //  compute SM(i,j,k)
-                if ((j - i > DPAlgorithm_pkAkutsu.Tables[0].minLoopLength) && (k - j > DPAlgorithm_pkAkutsu.Tables[0].minLoopLength)) {
+                {
                 	// get max of all recursive cases
                 	var maxBP = 0;
-                	if (i > i0 && j < k) { 
-                		maxBP = Math.max( 0
-                						, DPAlgorithm_pkAkutsu.SL[i-1][j][k] , DPAlgorithm_pkAkutsu.SL[i][j+1][k]
-                						, DPAlgorithm_pkAkutsu.SM[i-1][j][k] , DPAlgorithm_pkAkutsu.SM[i][j+1][k] , DPAlgorithm_pkAkutsu.SM[i][j][k-1]
-                						, DPAlgorithm_pkAkutsu.SR[i][j+1][k] , DPAlgorithm_pkAkutsu.SR[i][j][k-1]
+                	if (i > i0) { 
+                		maxBP = Math.max( maxBP
+                						, DPAlgorithm_pkAkutsu.SL[i-1][j][k] 
+                						, DPAlgorithm_pkAkutsu.SM[i-1][j][k] 
+                				); 
+            		}
+                	if (j < k) { 
+                		maxBP = Math.max( maxBP
+                						, DPAlgorithm_pkAkutsu.SL[i][j+1][k]
+                						, DPAlgorithm_pkAkutsu.SM[i][j+1][k] 
+                						, DPAlgorithm_pkAkutsu.SR[i][j+1][k] 
+                				); 
+            		}
+                	if (k < k0) { 
+                		maxBP = Math.max( maxBP
+                						, DPAlgorithm_pkAkutsu.SM[i][j][k-1]
+                						, DPAlgorithm_pkAkutsu.SR[i][j][k-1]
                 				); 
             		}
                 	// store value
-                	DPAlgorithm_pkAkutsu.SM[i][j][k] = maxBP + 1;
+                	DPAlgorithm_pkAkutsu.SM[i][j][k] = maxBP;
                 	// update max*
-                	if ( maxBP + 1 > maxVal ) {
+                	if ( maxBP > maxVal ) {
                 		maxMatrix = 'M';
-                		maxVal =  maxBP + 1;
+                		maxVal =  maxBP;
                 		maxI = i;
                 		maxJ = j;
                 		maxK = k;
                 	}
-                } else {
-                // default of SM(i,j,k)
-                DPAlgorithm_pkAkutsu.SM[i][j][k] = 0;
                 }
-               
             	
                 //compute SR(i,j,k)
-                if ((K - j > DPAlgorithm_pkAkutsu.Tables[0].minLoopLength) && RnaUtil.areComplementary(this.sequence[K - 1], this.sequence[j - 1])) {
+                if ((k - j > DPAlgorithm_pkAkutsu.Tables[0].minLoopLength) && RnaUtil.areComplementary(this.sequence[k - 1], this.sequence[j - 1])) {
                 	// get max of all recursive cases
                 	var maxBP = 0;
-                	if (i > i0 && j < k) { 
+                	if (j < k) { 
                 		maxBP = Math.max( 0
                 						, DPAlgorithm_pkAkutsu.SL[i][j+1][k-1] 
                 						, DPAlgorithm_pkAkutsu.SM[i][j+1][k-1] 
@@ -2077,7 +2085,6 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
                 	// default
                 	DPAlgorithm_pkAkutsu.SR[i][j][k] = -1;
                 }
-                
             }
         }
     }
@@ -2085,22 +2092,14 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
     
     // 2) traceback respective list of base pairs for maxVal
     var pkBasePairs = [];
-   while (maxVal > 0) 
-   {
-//    	// trace current cell
+//   while (maxVal > 0) 
+//   {
+//    	// trace cell corresponding to maxVal
 //    	// store base pair if any was added (maxMatrix == 'L'|'R')
                 	// update max*
-                	if ( maxBP + 1 > maxVal ) {
-                		maxMatrix == 'R' | 'L';
-                		maxVal =  maxBP + 1;
-                		maxI = i;
-                		maxJ = j;
-                		maxK = k;
-                    }
-                    else{
-                       maxVal -= 1;
-                     } // if base pair was added
-   }
+//                       maxVal -= 1;
+//                     } // if base pair was added
+//   }
 	
     // store list of pseudoknot base pairs in Spseudo table
     DPAlgorithm_pkAkutsu.Tables[1].updateCell(curCell, Object.create(NussinovCellTrace).init([], pkBasePairs));
@@ -2224,10 +2223,8 @@ DPAlgorithm_pkAkutsu.Tables[0].getSubstructures = function (sigma, P, traces, de
     // handle pseudoknot 
     // TODO get base pairs from DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces[0].bps and add to sigma_prime
     // TODO check if within delta range and add to R (unshift)
-    for(var i = i0; i <= k0-1; i++){
-        for(var k = i+1; k <= k0; k++){
-            for(var j = i; j <= k; j++){
     
+    /*
                 //console.log('here');
                 var sigma_prime = JSON.stringify(sigma);
                 sigma_prime = JSON.parse(sigma_prime);
@@ -2259,14 +2256,12 @@ DPAlgorithm_pkAkutsu.Tables[0].getSubstructures = function (sigma, P, traces, de
                     //console.log("returning R:", JSON.stringify(R));
                     return R;
                 }
+*/
 
     
-                //console.log("returning R:", JSON.stringify(R));
+    //console.log("returning R:", JSON.stringify(R));
 
-                return R;
-            }
-        }
-    }
+    return R;
 };
 
 
