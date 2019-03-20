@@ -16,18 +16,11 @@
          we consider three types of triplets $SL(i,j,k)$, $SM(i,j,k)$, and $SR(i,j,k)$. 
         The recursions of triplets as follows:
         <br/>
-        <br/>
         $$SL(i,j) = \max \left\{ SL(i-1, j+1, k) , SM(i-1, j+1, k), SR(i-1, j+1, k) +1 \right\}$$
-        <br/>
-        <br/>
         $$SR(i,j) = \max \left\{ SL(i, j+1, k-1) , SM(i, j+1, k-1), SR(i, j+1, k-1) +1 \right\}$$
-        <br/>
-        <br/>
         $$SM(i,j) = \max \begin{cases} SL(i-1, j, k) , SL(i, j+1, k),\\ SM(i-1, j, k), SM(i, j+1, k) , SM(i, j, k-1) ,\\ SR(i, j+1, k) ,SR(i, j, k-1) \end{cases}$$
-        <br/>
-        <br/>
 
-        For example, The recursion of $SL(i,j,k)$ in the figure represents the recursion equations of $SL$.
+        For example, the recursion of $SL(i,j,k)$ in the figure represents the recursion equations of $SL$.
         <br/>
         <br/>
         Here, the overall complexity is  $O(n^5)$ for time and $O(n^3)$ for space . 
