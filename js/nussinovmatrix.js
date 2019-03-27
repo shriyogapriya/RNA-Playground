@@ -2092,15 +2092,37 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
     
     // 2) traceback respective list of base pairs for maxVal
     var pkBasePairs = [];
-//   while (maxVal > 0) 
-//   {
-//    	// trace cell corresponding to maxVal
-//    	// store base pair if any was added (maxMatrix == 'L'|'R')
-                	// update max*
-//                       maxVal -= 1;
-//                     } // if base pair was added
-//   }
-	
+
+    while (maxVal > 0)
+    {
+    	switch (maxMatrix) {
+    	case 'L': 
+    		// store base pair
+    		pkBasePairs.push( [ maxI, maxJ ] );
+    		// update max* information
+    		maxI -= 1;
+    		maxJ += 1;
+    		maxVal -= 1;
+    		// trace step: find out where SL[maxI,maxJ,maxK] == maxVal came from
+    		if (maxVal > 0) {
+	    		if (DPAlgorithm_pkAkutsu.SR[maxI][maxJ][maxK] == maxVal) {
+	    			maxMatrix = 'R';
+	    		} else if (DPAlgorithm_pkAkutsu.SM[maxI][maxJ][maxK] == maxVal) {
+	    			maxMatrix = 'M';
+	    		} 
+	    		// else 'L' matrix, which we are already in
+    		}
+    		break;
+    	case 'R':
+    		maxVal -= 1;
+    		// TODO store base pair
+    		// TODO update maxJ,K and maxMatrix
+    	break;
+    	default : // == 'M'
+    		// TODO update maxI,J,K and maxMatrix
+    	}
+    }
+    	
     // store list of pseudoknot base pairs in Spseudo table
     DPAlgorithm_pkAkutsu.Tables[1].updateCell(curCell, Object.create(NussinovCellTrace).init([], pkBasePairs));
 
@@ -2221,45 +2243,39 @@ DPAlgorithm_pkAkutsu.Tables[0].getSubstructures = function (sigma, P, traces, de
     }
     
     // handle pseudoknot 
-    // TODO get base pairs from DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces[0].bps and add to sigma_prime
-    // TODO check if within delta range and add to R (unshift)
     
-    /*
-                //console.log('here');
-                var sigma_prime = JSON.stringify(sigma);
-                sigma_prime = JSON.parse(sigma_prime);
-                ////sigma_prime.push([ij[0], ]);
-                
-
-                var tmp_P = JSON.stringify(P);
-                tmp_P = JSON.parse(tmp_P);
-
-                var tmp_traces = JSON.stringify(traces);
-                tmp_traces = JSON.parse(tmp_traces);
-
-                var NSprime = this.countBasepairs(tmp_P, sigma_prime);
-
-                if (NSprime >= Nmax - delta) {
-
-                    var S_prime = {};
-                    S_prime.sigma = sigma_prime;
-                    S_prime.P = tmp_P;
-                   //// tmp_traces.unshift();
-                    S_prime.traces = tmp_traces;
-                    //console.log("ilj:", JSON.stringify(S_prime));
-                    // push to the front to keep base pair most prominent to refine
-                    R.unshift(S_prime);
-                }
-
-                // check if enough structures found so far
-                if (R.length >= maxLengthR) {
-                    //console.log("returning R:", JSON.stringify(R));
-                    return R;
-                }
-*/
-
+     //console.log('here');
+     var sigma_prime = JSON.stringify(sigma);
+     sigma_prime = JSON.parse(sigma_prime);
     
-    //console.log("returning R:", JSON.stringify(R));
+     var tmp_P = JSON.stringify(P);
+     tmp_P = JSON.parse(tmp_P);
+     // get base pairs from DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces[0].bps
+     var a = DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces[0].bps;
+     // push all pseudoknot base pairs to sigma_prime
+     for (var b = 0; b < a.length; b++) {
+    	 tmp_P.push( a[b] );
+     }
+
+     var tmp_traces = JSON.stringify(traces);
+     tmp_traces = JSON.parse(tmp_traces);
+
+     var NSprime = this.countBasepairs(tmp_P, sigma_prime);
+
+     // check if within delta range and add to R
+     if (NSprime >= Nmax - delta) {
+
+         var S_prime = {};
+         S_prime.sigma = sigma_prime;
+         S_prime.P = tmp_P;
+         tmp_traces.unshift([ij, [] ]);
+         S_prime.traces = tmp_traces;
+         //console.log("ilj:", JSON.stringify(S_prime));
+         // push to the front to keep base pair most prominent to refine
+         R.unshift(S_prime);
+     }
+
+   //console.log("returning R:", JSON.stringify(R));
 
     return R;
 };
