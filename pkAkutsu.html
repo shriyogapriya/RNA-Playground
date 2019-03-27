@@ -1,19 +1,22 @@
 
 <div class="row" id="introduction">
     <div class="colW600"> 
-        The algorithm by <a href="https://www.sciencedirect.com/science/article/pii/S0166218X00001864?via%3Dihub ">Akutsu </a> is the extension of Nussinov recursion with pseudoknot case. The simple pseduknot structure (fig A) is the combination of two stem loops. 
-        For finding a simple pseudoknot substructure whose endpoints are i0th and k0th residues, we consider triplets $(i,j,k)$ $(i0-1 <= i < j <= k <= k0 )$ instead of $(i,j)$.
-        The properties of $i0$ till $k_{0}$ in (A) exists $j'_{0}$ and $j_{0}$ with
+        The algorithm by <a href="https://doi.org/10.1016/S0166-218X(00)00186-4">Akutsu (2000)</a> 
+        is the extension of Nussinov recursion with pseudoknot case.
+        The simple pseudoknot structure (see Fig. A on the right) is a combination of two stem loops. 
+        For finding a simple pseudoknot substructure whose endpoints are i0th and k0th residues, 
+        we consider triplets $(i,j,k)$ $(i0-1 \leq i < j \leq k \leq k0 )$.
+        For a simple pseudoknot subregion $i0$ till $k_{0}$, there exist $j'_{0}$ and $j_{0}$ with
         <br />
         <br /> 
-        (1) $j'_{0}$ and $j_{0}$ are in hairpins
+        (1) $j'_{0}$ and $j_{0}$ are in hairpins, 
         <br /> 
-        (2) structure $[i_{0} .. j_{0}]$ and $[j'_{0} .. k_{0}]$ are stem loops 
+        (2) structure $[i_{0} .. j_{0}]$ and $[j'_{0} .. k_{0}]$ are stem loops,  
         <br /> 
-        (3) list of such structures for sub sequences $i_{0} .. k_{0}$
+        (3) list of such structures for sub sequences $i_{0} .. k_{0}$.
         <br /> 
         <br /> 
-         we consider three types of triplets $SL(i,j,k)$, $SM(i,j,k)$, and $SR(i,j,k)$. 
+        We consider three types of triplets $SL(i,j,k)$, $SM(i,j,k)$, and $SR(i,j,k)$. 
         The recursions of triplets as follows:
         <br/>
         $$SL(i,j) = \max \left\{ SL(i-1, j+1, k) , SM(i-1, j+1, k), SR(i-1, j+1, k) +1 \right\}$$
@@ -25,7 +28,7 @@
         <br/>
         <br/>
         <div class= "colW400">
-            <img alt="Akutsu" src="akuts2.PNG" width=450 height=150 />
+            <img alt="Akutsu SL recursion" src="pkAkutsu.2.png" width="450px" />
         </div>
         <br/>
         Here, the overall complexity is  $O(n^5)$ for time and $O(n^3)$ for space . 
@@ -40,7 +43,7 @@
     </div>
   
     <div class="colW150">
-        <img alt="Akutsu" src="akuts.PNG" width=170 height=120 />
+        <img alt="Akutsu simple pseudoknot" src="pkAkutsu.1.png" width="170px" />
     </div>
     
     <div id="inputContainer">

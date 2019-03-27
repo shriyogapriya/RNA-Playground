@@ -2121,6 +2121,9 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
     	default : // == 'M'
     		// TODO update maxI,J,K and maxMatrix
     	}
+    	
+    	// TODO REMOVE THE NEXT LINE WHEN ALL IS IMPLEMENTED
+    	maxVal--;
     }
     	
     // store list of pseudoknot base pairs in Spseudo table
