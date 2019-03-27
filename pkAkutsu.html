@@ -1,7 +1,7 @@
 
 <div class="row" id="introduction">
     <div class="colW600"> 
-        The algorithm by <a href="https://www.sciencedirect.com/science/article/pii/S0166218X00001864?via%3Dihub ">Akutsu </a> is the extension of Nussinov recursion with pseudoknot case. The simple pseduknot structure is the combination of two stem loops. 
+        The algorithm by <a href="https://www.sciencedirect.com/science/article/pii/S0166218X00001864?via%3Dihub ">Akutsu </a> is the extension of Nussinov recursion with pseudoknot case. The simple pseduknot structure (fig A) is the combination of two stem loops. 
         For finding a simple pseudoknot substructure whose endpoints are i0th and k0th residues, we consider triplets $(i,j,k)$ $(i0-1 <= i < j <= k <= k0 )$ instead of $(i,j)$.
         The properties of $i0$ till $k_{0}$ in (A) exists $j'_{0}$ and $j_{0}$ with
         <br />
@@ -19,19 +19,23 @@
         $$SL(i,j) = \max \left\{ SL(i-1, j+1, k) , SM(i-1, j+1, k), SR(i-1, j+1, k) +1 \right\}$$
         $$SR(i,j) = \max \left\{ SL(i, j+1, k-1) , SM(i, j+1, k-1), SR(i, j+1, k-1) +1 \right\}$$
         $$SM(i,j) = \max \begin{cases} SL(i-1, j, k) , SL(i, j+1, k),\\ SM(i-1, j, k), SM(i, j+1, k) , SM(i, j, k-1) ,\\ SR(i, j+1, k) ,SR(i, j, k-1) \end{cases}$$
-
-        For example, the recursion of $SL(i,j,k)$ in the figure represents the recursion equations of $SL$.
         <br/>
+        <br/>
+        For example, the recursion of $SL(i,j,k)$ in the below figure represents the recursion equations of $SL$.
+        <br/>
+        <br/>
+        <div class= "colW400">
+            <img alt="Akutsu" src="akuts2.PNG" width=450 height=150 />
+        </div>
         <br/>
         Here, the overall complexity is  $O(n^5)$ for time and $O(n^3)$ for space . 
      Finally, the traceback is visualized. 
         <div style="padding-left:45px;">
             <span id="rec_id_0" data-bind="text: latex()[0]"></span>  
              <span id="rec_id_1" data-bind="text: latex()[1]"></span>
-             <br/>
-             <br/>
-             <img alt="Akutsu" src="akuts2.PNG" width=170 height=150 />
-        </div>
+    
+            </div>
+
 
     </div>
   
