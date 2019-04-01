@@ -2113,17 +2113,51 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
 	    		// else 'L' matrix, which we are already in
     		}
     		break;
-    	case 'R':
+        case 'R':
+        // store base pair
+    		pkBasePairs.push( [ maxJ, maxK ] );
+    		// update max* information
+    		maxJ += 1;
+    		maxK -= 1;
     		maxVal -= 1;
-    		// TODO store base pair
-    		// TODO update maxJ,K and maxMatrix
+
+    		if (maxVal > 0) {
+	    		if (DPAlgorithm_pkAkutsu.SL[maxI][maxJ][maxK] == maxVal) {
+	    			maxMatrix = 'L';
+	    		} else if (DPAlgorithm_pkAkutsu.SM[maxI][maxJ][maxK] == maxVal) {
+	    			maxMatrix = 'M';
+	    		} 
+	    		// else 'R' matrix, which we are already in
+    		}
     	break;
     	default : // == 'M'
-    		// TODO update maxI,J,K and maxMatrix
+            // TODO update maxI,J,K and maxMatrix
+            
+            //if (i > i0) { 
+               maxI -= 1;
+            // }
+            // if (j < k) { 
+               maxJ += 1;
+            // }
+            // if (k < k0) { 
+                maxK -= 1;
+            // }
+             maxVal += 1;
+
+            if (maxVal < 0) {
+	    		if (DPAlgorithm_pkAkutsu.SL[maxI][maxJ][maxK] == maxVal) {
+	    			maxMatrix = 'L';
+	    		} else if (DPAlgorithm_pkAkutsu.SR[maxI][maxJ][maxK] == maxVal) {
+	    			maxMatrix = 'R';
+	    		} 
+	    		// else 'M' matrix, which we are already in
+            }
+            
+           
     	}
     	
     	// TODO REMOVE THE NEXT LINE WHEN ALL IS IMPLEMENTED
-    	maxVal--;
+    	//maxVal--;
     }
     	
     // store list of pseudoknot base pairs in Spseudo table
