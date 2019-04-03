@@ -2112,7 +2112,7 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
 	    		} 
 	    		// else 'L' matrix, which we are already in
             }
-            console.log('11');
+//            console.log('11');
 
     	break;
         case 'R':
@@ -2132,9 +2132,11 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
                 
 	    		// else 'R' matrix, which we are already in
             }
-            console.log('22');
+//            console.log('22');
+
     	break;
-    	default : // == 'M'
+    	default : // == 'M' 
+    		/*
             // TODO update maxI,J,K and maxMatrix
             console.log('default');
             if (i > i0) { 
@@ -2156,12 +2158,11 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
 	    		} 
 	    		// else 'M' matrix, which we are already in
             }
-            
-           
+           */
+    		// TODO REMOVE THE NEXT LINE WHEN ALL IS IMPLEMENTED
+    		maxVal--;
     	}
     	
-    	// TODO REMOVE THE NEXT LINE WHEN ALL IS IMPLEMENTED
-    	//maxVal--;
     }
     	
     // store list of pseudoknot base pairs in Spseudo table
@@ -2292,7 +2293,7 @@ DPAlgorithm_pkAkutsu.Tables[0].getSubstructures = function (sigma, P, traces, de
      var tmp_P = JSON.stringify(P);
      tmp_P = JSON.parse(tmp_P);
      // get base pairs from DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces[0].bps
-     var a = DPAlgorithm_pkAkutsu.Tables[1].getCell(i,j).traces[0].bps;
+     var a = DPAlgorithm_pkAkutsu.Tables[1].getCell(ij[0],ij[1]).traces[0].bps;
      // push all pseudoknot base pairs to sigma_prime
      for (var b = 0; b < a.length; b++) {
     	 tmp_P.push( a[b] );
