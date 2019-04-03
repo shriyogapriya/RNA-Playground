@@ -2112,7 +2112,6 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
 	    		} 
 	    		// else 'L' matrix, which we are already in
             }
-//            console.log('11');
 
     	break;
         case 'R':
@@ -2132,33 +2131,15 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
                 
 	    		// else 'R' matrix, which we are already in
             }
-//            console.log('22');
 
     	break;
     	default : // == 'M' 
-    		/*
-            // TODO update maxI,J,K and maxMatrix
-            console.log('default');
-            if (i > i0) { 
-               maxI -= 1;
-            }
-             if (j < k) { 
-               maxJ += 1;
-            }
-             if (k < k0) { 
-                maxK -= 1;
-            }
-             maxVal += 1;
-
-            if (maxVal > 0) {
-	    		if (DPAlgorithm_pkAkutsu.SL[maxI][maxJ][maxK] == maxVal) {
-	    			maxMatrix = 'L';
-	    		} else if (DPAlgorithm_pkAkutsu.SR[maxI][maxJ][maxK] == maxVal) {
-	    			maxMatrix = 'R';
-	    		} 
-	    		// else 'M' matrix, which we are already in
-            }
-           */
+    		if (i > i0 && maxVal == DPAlgorithm_pkAkutsu.SL[i-1][j][k]) {
+    			maxI--;
+    			maxMatrix = 'L';
+    		} else
+    		// TODO ... handle remaining 6 cases
+    		           */
     		// TODO REMOVE THE NEXT LINE WHEN ALL IS IMPLEMENTED
     		maxVal--;
     	}
