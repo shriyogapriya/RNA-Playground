@@ -2133,16 +2133,38 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
             }
 
     	break;
-    	default : // == 'M' 
+        default : // == 'M' 
+        //if (maxVal > 0) {
     		if (i > i0 && maxVal == DPAlgorithm_pkAkutsu.SL[i-1][j][k]) {
     			maxI--;
     			maxMatrix = 'L';
-    		} else
+            } else if( i > i0 && maxVal == DPAlgorithm_pkAkutsu.SM[i-1][j][k] ){
+                maxI--;
+                maxMatrix = 'M';
+            } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SL[i][j+1][k] ){
+                maxJ++;
+                maxMatrix = 'L';
+            } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SM[i][j+1][k] ){
+                maxJ++;
+                maxMatrix = 'M';
+            } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SR[i][j+1][k] ){
+                maxJ++;
+                maxMatrix = 'R';
+            } else if( k < k0 && maxVal == DPAlgorithm_pkAkutsu.SM[i][j][k-1] ){
+                maxK--;
+                maxMatrix = 'M';
+            } else if ( k < k0 && maxVal == DPAlgorithm_pkAkutsu.SR[i][j][k-1] ){
+                maxK--;
+                maxMatrix = 'R';
+            }
+        //}
+
+            
     		// TODO ... handle remaining 6 cases
-    		           */
+    		        
     		// TODO REMOVE THE NEXT LINE WHEN ALL IS IMPLEMENTED
-    		maxVal--;
-    	}
+    	}	maxVal--;
+    	
     	
     }
     	
