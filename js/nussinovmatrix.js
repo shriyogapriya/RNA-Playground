@@ -2135,25 +2135,48 @@ DPAlgorithm_pkAkutsu.Tables[1].computeCell = function(i0, k0) {
     	break;
         default : // == 'M' 
         //if (maxVal > 0) {
-    		if (i > i0 && maxVal == DPAlgorithm_pkAkutsu.SL[i-1][j][k]) {
+    		// if (i > i0 && maxVal == DPAlgorithm_pkAkutsu.SL[i-1][j][k] ) {
+    		// 	maxI--;
+    		// 	maxMatrix = 'L';
+            // } else if( i > i0 && maxVal == DPAlgorithm_pkAkutsu.SM[i-1][j][k]  ){
+            //     maxI--;
+            //     maxMatrix = 'M';
+            // } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SL[i][j+1][k]  ){
+            //     maxJ++;
+            //     maxMatrix = 'L';
+            // } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SM[i][j+1][k] ){
+            //     maxJ++;
+            //     maxMatrix = 'M';
+            // } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SR[i][j+1][k] ){
+            //     maxJ++;
+            //     maxMatrix = 'R';
+            // } else if( k < k0 && maxVal == DPAlgorithm_pkAkutsu.SM[i][j][k-1] ){
+            //     maxK--;
+            //     maxMatrix = 'M';
+            // } else if ( k < k0 && maxVal == DPAlgorithm_pkAkutsu.SR[i][j][k-1] ){
+            //     maxK--;
+            //     maxMatrix = 'R';
+            // }
+
+            if (i > i0 && maxVal == DPAlgorithm_pkAkutsu.SL[maxI-1][maxJ][maxK]) {
     			maxI--;
     			maxMatrix = 'L';
-            } else if( i > i0 && maxVal == DPAlgorithm_pkAkutsu.SM[i-1][j][k] ){
+            } else if( i > i0 && maxVal == DPAlgorithm_pkAkutsu.SM[maxI-1][maxJ][maxK] ){
                 maxI--;
                 maxMatrix = 'M';
-            } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SL[i][j+1][k] ){
+            } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SL[maxI][maxJ+1][maxK] ){
                 maxJ++;
                 maxMatrix = 'L';
-            } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SM[i][j+1][k] ){
+            } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SM[maxI][maxJ+1][maxK] ){
                 maxJ++;
                 maxMatrix = 'M';
-            } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SR[i][j+1][k] ){
+            } else if( j < k && maxVal == DPAlgorithm_pkAkutsu.SR[maxI][maxJ+1][maxK] ){
                 maxJ++;
                 maxMatrix = 'R';
-            } else if( k < k0 && maxVal == DPAlgorithm_pkAkutsu.SM[i][j][k-1] ){
+            } else if( k < k0 && maxVal == DPAlgorithm_pkAkutsu.SM[maxI][maxJ][maxK-1] ){
                 maxK--;
                 maxMatrix = 'M';
-            } else if ( k < k0 && maxVal == DPAlgorithm_pkAkutsu.SR[i][j][k-1] ){
+            } else if ( k < k0 && maxVal == DPAlgorithm_pkAkutsu.SR[maxI][maxJ][maxK-1] ){
                 maxK--;
                 maxMatrix = 'R';
             }
